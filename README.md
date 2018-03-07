@@ -1,2 +1,2 @@
 # Data_Camp
-hello-world!
+Lessons from Data Camp lessons as I complete them. All data included.
