@@ -1,0 +1,385 @@
+---
+title: "Importing Data into R - Part 2"
+subtitle: Lessons from DataCamp
+output:
+  html_notebook:
+    toc: yes
+  html_document:
+    toc: yes
+  pdf_document:
+    toc: yes
+    toc_depth: 3
+---
+
+#Introduction
+
+The following documentoutlines the written portion of the lessons from [DataCamp](https://www.datacamp.com/)'s [Importing Data in R (Part 2)" course](https://www.datacamp.com/courses/importing-data-in-r-part-2). This is a follow-up to the "Importing Data in R (Part 1) That requires you to understand the basics of importing data.In this second part to Importing Data in R, you will take a deeper dive into the wide range of data formats out there. More specifically, you'll learn how to import data from relational databases and how to import and work with data coming from the web. Finally, you'll get hands-on experience with importing data from statistical software packages such SAS, STATA and SPSS.
+
+As a note: All text is completely copied and pasted from the course. There are insances where the document refers to the "editor on the right", please note, that in this notebook document all of the instances are noted in the "r-chunks" (areas containing working r-code), which occurs below the text, rather than to the right. Furthermore, This lesson contained instructional videos at the beginign of new concepts that are not detailed in this document. However, even without these videos, the instructions are quite clear in indicating what the code is accomplishing. 
+
+<u>*If you have this document open on "R-Notebook", simply click "run" -> "Run all" (Or just press 'ctrl + alt + r'), let the "r-chunks" run (This might take a bit of time) then click "Preview". All necessary data is embedded within the code, no need to set a working directory or open an R-project.*</u>
+
+This document was created by Neil Yetz on 10/01/2017. Please send any questions or concerns in this document to Neil at <ndyetz@gmail.com>
+
+
+
+<center>
+![](http://www.learndatasci.com/wp-content/uploads/2015/10/DataCamp50h1.png)  
+</center>
+
+\newpage
+
+
+
+#Chapter 1: Importing data from databases (Part 1)
+
+Many companies store their information in relational databases. The R community has also developed R packages to get data from these architectures. You'll learn how to connect to a database and how to retrieve data from it.
+
+##Establish a connection
+
+The first step to import data from a SQL database is creating a connection to it. As Filip explained, you need different packages depending on the database you want to connect to. All of these packages do this in a uniform way, as specified in the `DBI` package.
+
+`dbConnect()` creates a connection between your R session and a SQL database. The first argument has to be a `DBIdriver` object, that specifies how connections are made and how data is mapped between R and the database. Specifically for MySQL databases, you can build such a driver with `RMySQL::MySQL()`.
+
+If the MySQL database is a remote database hosted on a server, you'll also have to specify the following arguments in `dbConnect()`: `dbname`, `host`, `port`, `user` and `password`. Most of these details have already been provided.
+
+
+**Instructions**
+
+
+Load the `DBI` library, which is already installed on DataCamp's servers.
+Edit the `dbConnect()` call to connect to the MySQL database. Change the port argument (`3306`) and user argument (`"student"`).
+
+
+
+```{r}
+
+
+# Load the DBI package
+#install.packages("DBI")
+library(DBI)
+
+# Edit dbConnect() call
+con <- dbConnect(RMySQL::MySQL(), 
+                 dbname = "tweater", 
+                 host = "courses.csrrinzqubik.us-east-1.rds.amazonaws.com", 
+                 port = 3306,
+                 user = "student",
+                 password = "datacamp")
+
+
+
+```
+
+##Inspect the connection
+
+Now that you've successfully created the database connection, let's have a closer look at it. With the object `con` available in your workspace, can you tell which of the following statements is true?
+
+**Possible Answers** (Correct answer is **Bolded**)
+
+`con` is an `SQLConnection` object.  
+`con` is a  `PostgreSQLConnection` object.  
+**`con` is an `MySQLConnection` object.**  
+`con` is an `NoSQLConnection` object.  
+
+
+##List the database tables
+
+
+After you've successfully connected to a remote MySQL database, the next step is to see what tables the database contains. You can do this with the `dbListTables()` function. As you might remember from the video, this function requires the connection object as an input, and outputs a character vector with the table names.
+
+
+
+**Instructions**
+
+
+Add code to create a vector `tables`, that contains the tables in the tweater database. You can connect to this database through the `con` object.
+
+Display the structure of `tables`; what's the class of this vector?
+
+
+
+```{r}
+# Load the DBI package
+library(DBI)
+
+# Connect to the MySQL database: con
+con <- dbConnect(RMySQL::MySQL(), 
+                 dbname = "tweater", 
+                 host = "courses.csrrinzqubik.us-east-1.rds.amazonaws.com", 
+                 port = 3306,
+                 user = "student",
+                 password = "datacamp")
+
+# Build a vector of table names: tables
+tables <- dbListTables(con)
+
+# Display structure of tables
+str(tables)
+```
+
+
+##Import users
+
+As you might have guessed by now, the database contains data on a more tasty version of Twitter, namely Tweater. Users can post tweats with short recipes for delicious snacks. People can comment on these tweats. There are three tables: **users**, **tweats**, and **comments** that have relations among them. Which ones, you ask? You'll discover in a moment!
+
+Let's start by importing the data on the users into your R session. You do this with the `dbReadTable()` function. Simply pass it the connection object (`con`), followed by the name of the table you want to import. The resulting object is a standard R data frame.
+
+
+**Instructions**
+
+Add code that imports the `"users"` table from the tweater database and store the resulting data frame as `users`.
+
+Print the `users` data frame.
+
+
+```{r}
+# Load the DBI package
+library(DBI)
+
+# Connect to the MySQL database: con
+con <- dbConnect(RMySQL::MySQL(), 
+                 dbname = "tweater", 
+                 host = "courses.csrrinzqubik.us-east-1.rds.amazonaws.com", 
+                 port = 3306,
+                 user = "student",
+                 password = "datacamp")
+
+# Import the users table from tweater: users
+users <- dbReadTable(con, "users")
+
+# Print users
+print(users)
+```
+
+
+##Import all tables
+
+Next to the `users`, we're also interested in the `tweats` and `comments` tables. However, separate `dbReadTable()` calls for each and every one of the tables in your database would mean a lot of code duplication. Remember about the `lapply()` function? You can use it again here! A connection is already coded for you, as well as a vector `table_names`, containing the names of all the tables in the database.
+
+**Instructions**
+
+Finish the `lapply()` function to import the `users`, `tweats` and `comments` tables in a single call. The result, a list of data frames, will be stored in the variable `tables`.
+Print `tables` to check if you got it right.
+
+```{r}
+# Load the DBI package
+library(DBI)
+
+# Connect to the MySQL database: con
+con <- dbConnect(RMySQL::MySQL(), 
+                 dbname = "tweater", 
+                 host = "courses.csrrinzqubik.us-east-1.rds.amazonaws.com", 
+                 port = 3306,
+                 user = "student",
+                 password = "datacamp")
+
+# Get table names
+table_names <- dbListTables(con)
+
+# Import all tables
+tables <- lapply(table_names, dbReadTable, conn = con)
+
+# Print out tables
+tables
+```
+
+
+##How do the tables relate? 
+
+The connection to the MySQL database `con` has already been created for you. `tables`, a list containing the three tables as data frames that you've created in the previous exercise, is also available.
+
+If you have a closer look at these tables, you'll see that the `tweats` table, for example, contains a column `user_id`. The ids in the column refer to the users that have posted the tweat. Similarly, the `comments` contain both a `user_id` and a `tweat_id` column. It specifies which user posted a comment on which tweat.
+
+With this new knowledge, can you tell **who** posted the **tweat** on which somebody commented "awesome! thanks!" (comment 1012)?
+
+
+
+**Possible Answers** (Correct answer is **BOLDED**)
+The user with id 1, so Kate.  
+There is not enough information to solve this.  
+The user with id 4, so Thomas.  
+**The user with user_id 5, so Oliver.**  
+
+#Chapter 2: Importing data from databases (Part 2)
+
+Importing an entire table from a database while you might only need a tiny bit of information seems like a lot of unncessary work. In this chapter, you'll learn about SQL queries, which will help you make things more efficient by performing some computations on the database side.
+
+##SQL with R
+###Query tweater(1)
+
+In your life as a data scientist, you'll often be working with huge databases that contain tables with millions of rows. If you want to do some analyses on this data, it's possible that you only need a fraction of this data. In this case, it's a good idea to send SQL queries to your database, and only import the data you actually need into R.
+
+`dbGetQuery()` is what you need. As usual, you first pass the connection object to it. The second argument is an SQL query in the form of a character string. This example selects the `age` variable from the `people` dataset where `gender` equals `"male"`:
+
+```
+dbGetQuery(con, "SELECT age FROM people WHERE gender = 'male'")
+```
+
+A connection to the `tweater` database has already been coded for you.
+
+
+
+**Instructions**
+
+Use `dbGetQuery()` to create a data frame, `elisabeth`, that **selects** the `tweat_id` column **from** the `comments` table **where** elisabeth is the commenter, her `user_id` is 1
+
+Print out `elisabeth` so you can see if you queried the database correctly.
+
+```{r}
+# Connect to the database
+library(DBI)
+con <- dbConnect(RMySQL::MySQL(),
+                 dbname = "tweater",
+                 host = "courses.csrrinzqubik.us-east-1.rds.amazonaws.com",
+                 port = 3306,
+                 user = "student",
+                 password = "datacamp")
+
+# Import tweat_id column of comments where user_id is 1: elisabeth
+elisabeth <- dbGetQuery(con, "SELECT tweat_ID FROM comments WHERE user_id = 1")
+
+# Print elisabeth
+elisabeth
+```
+
+###Query tweater(2)
+
+
+Apart from checking equality, you can also check for less than and greater than relationships, with `<` and `>`, just like in R.
+
+`con`, a connection to the `tweater` database, is again available.
+
+**Instructions**
+
+Create a data frame, `latest`, that **selects** the `post` column **from** the `tweats` table observations **where** the `date` is higher than `'2015-09-21'`.
+
+Print out `latest`.
+
+```{r}
+# Connect to the database
+library(DBI)
+con <- dbConnect(RMySQL::MySQL(),
+                 dbname = "tweater",
+                 host = "courses.csrrinzqubik.us-east-1.rds.amazonaws.com",
+                 port = 3306,
+                 user = "student",
+                 password = "datacamp")
+
+# Import post column of tweats where date is higher than '2015-09-21': latest
+latest <- dbGetQuery(con, "SELECT post FROM tweats WHERE date > '2015-09-21'")
+
+# Print latest
+latest
+```
+
+###Query tweater(3)
+
+Suppose that you have a `people` table, with a bunch of information. This time, you want to find out the `age` and `country` of married males. Provided that there is a `married` column that's 1 when the person in question is married, the following query would work.
+
+```
+SELECT age, country
+  FROM people
+    WHERE gender = "male" AND married = 1
+```
+
+Can you use a similar approach for a more specialized query on the `tweater` database?
+
+**Instructions**
+
+Create an R data frame, `specific`, that selects the `message` column from the `comments` table where the tweat_id is 77 **and** the `user_id` is greater than 4.
+
+Print `specific`.
+
+```{r}
+# Connect to the database
+library(DBI)
+con <- dbConnect(RMySQL::MySQL(),
+                 dbname = "tweater",
+                 host = "courses.csrrinzqubik.us-east-1.rds.amazonaws.com",
+                 port = 3306,
+                 user = "student",
+                 password = "datacamp")
+
+# Create data frame specific
+specific <- dbGetQuery(con, 'SELECT message FROM comments WHERE tweat_id = 77 AND user_id > 4')
+
+# Print specific
+specific
+```
+
+
+###Query tweater(4)
+
+There are also dedicated SQL functions that you can use in the `WHERE` clause of an SQL query. For example, `CHAR_LENGTH()` returns the number of characters in a string.
+
+**Instructions**
+
+Create a data frame, `short`, that selects the `id` and `name` columns from the `users` table where the number of characters in the `name` is strictly less than 5.
+
+Print `short`.
+
+
+```{r}
+# Connect to the database
+library(DBI)
+con <- dbConnect(RMySQL::MySQL(),
+                 dbname = "tweater",
+                 host = "courses.csrrinzqubik.us-east-1.rds.amazonaws.com",
+                 port = 3306,
+                 user = "student",
+                 password = "datacamp")
+
+# Create data frame short
+short <- dbGetQuery(con, "SELECT id, name FROM users WHERE CHAR_LENGTH(name) < 5")
+
+# Print short
+short
+
+```
+
+
+
+##Join the query madness!
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+#Chapter 3: Importing data from the web (Part 1)
+
+More and more of the information that data scientists are using resides on the web. Importing this data into R requires an understanding of the protocols used on the web. In this chapter, you'll get a crash course in HTTP and learn to perform your own HTTP requests from inside R.
+
+
+
+
+#Chapter 4: Importing data from the web (Part 2)
+Importing data from the web is one thing; actually being able to extract useful information is another. Learn more about the JSON format to get one step closer to web domination.
+
+
+
+#Chapter 5: Importing data from statistical software packages
+
+Next to R, there are also other commonly used statistical software packages: SAS, STATA and SPSS. Each of them has their own file format. Learn how to use the haven and foreign packages to get them into R with remarkable ease!
+
+
+
+
+
+
+
+
