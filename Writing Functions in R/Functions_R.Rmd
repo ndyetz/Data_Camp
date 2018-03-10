@@ -1,0 +1,75 @@
+---
+title: "Writing Functions in R"
+subtitle: Lessons from DataCamp
+output:
+  html_notebook:
+    toc: yes
+    toc_float: true
+  pdf_document:
+    toc: yes
+    toc_depth: 3
+  html_document:
+    toc: yes
+    toc_float: true
+---
+
+#Introduction
+
+The following documentoutlines the written portion of the lessons from [DataCamp](https://www.datacamp.com/)'s [Writing Functions in R](https://www.datacamp.com/courses/writing-functions-in-r). This requires Intermediate R-Knowledge. 
+
+As a note: All text is completely copied and pasted from the course. There are instances where the document refers to the "editor on the right", please note, that in this notebook document all of the instances are noted in the "r-chunks" (areas containing working r-code), which occurs below the text, rather than to the right. Furthermore, This lesson contained instructional videos at the begining of new concepts that are not detailed in this document. However, even without these videos, the instructions are quite clear in indicating what the code is accomplishing. 
+
+<u>*If you have this document open on "R-Notebook", simply click "run" -> "Run all" (Or just press 'ctrl + alt + r'), let the "r-chunks" run (This might take a bit of time) then click "Preview". There are 5 necessary datasets to run this program, please create an r-project with this data or set a working directory (required files names are available in the "Required data for this session" section)*</u>
+
+This document was created by Neil Yetz on 03/09/2018. Please send any questions or concerns in this document to Neil at <ndyetz@gmail.com>
+
+<center>
+![](http://www.learndatasci.com/wp-content/uploads/2015/10/DataCamp50h1.png)  
+</center>
+
+
+
+##Required packages for this session
+
+Below are the install.packages and libraries you will need to have in order to run this session succesfully.
+
+```{r, message = FALSE}
+
+
+```
+
+##Required data for this session
+
+```{r, message = FALSE}
+
+
+
+
+```
+
+#Course Description
+
+Functions are a fundamental building block of the R language. You've probably used dozens (or even hundreds) of functions written by others, but in order to take your R game to the next level, you'll need to learn to write your own functions. This course will teach you the fundamentals of writing functions in R so that, among other things, you can make your code more readable, avoid coding errors, and automate repetitive tasks.
+
+#Chapter 1: A quick refresher
+
+Before we embark, we'll make sure you're ready for this course by reviewing some of the prerequisites. You'll review the syntax of writing a function in R, the basic data types in R, subsetting and writing for loops. It won't all be review, we'll introduce you to a few new things that will be helpful throughout the course.
+
+#Chapter 2: When and how you should write a function
+
+Writing your own functions is one way to reduce duplication in your code. In this chapter, you'll learn when to write a function, how to get started and what to keep in mind when you are writing. You'll also learn to appreciate that functions have two audiences: the computer (which runs the code) and humans (who need to be able to understand the code).
+
+#Chapter 3: Functional programming
+
+You already know how to use a for loop. The goal of this chapter is to teach you how to use the map functions in the purrr package which remove the code that's duplicated across multiple for loops. After completing this chapter you'll be able to solve new iteration problems with greater ease (faster and with fewer bugs).
+
+#Chapter 4: Advanced inputs and outputs
+
+Now you've seen how useful the map functions are for reducing duplication, we'll introduce you to a few more functions in purrr that allow you to handle more complicated inputs and outputs. In particular, you'll learn how to deal with functions that might return an error, how to iterate over multiple arguments and how to iterate over functions that have no output at all.
+
+
+#Chapter 5: Robust Functions
+
+In this chapter we'll focus on writing functions that don't surprise you or your users. We'll expose you to some functions that work 95% of the time, and 5% of the time fail in surprising ways. You'll learn which functions you should avoid using inside a function and which you should use with care.
+
+
