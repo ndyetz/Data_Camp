@@ -4,8 +4,10 @@ subtitle: Lessons from DataCamp
 output:
   html_notebook:
     toc: yes
+    toc_float: true
   html_document:
     toc: yes
+    toc_float: true
   pdf_document:
     toc: yes
 ---
