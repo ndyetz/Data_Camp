@@ -2,15 +2,15 @@
 title: "Data Visualization with ggplot2 (Part 2)"
 subtitle: Lessons from DataCamp
 output:
-  html_document:
-    toc: yes
-    toc_float: true
-  html_notebook:
-    toc: yes
-    toc_float: true
   pdf_document:
     toc: yes
     toc_depth: 3
+  html_notebook:
+    toc: yes
+    toc_float: true
+  html_document:
+    toc: yes
+    toc_float: true
 ---
 
 #Introduction
@@ -32,10 +32,15 @@ Below are the install.packages and libraries you will need to have in order to r
 
 ```{r, message = FALSE}
 
+library(tidyverse)
 library(ggplot2)
 library(RColorBrewer)
 library(car) #<- Vocab dataset
 library(Hmisc)
+library(MASS) # <- mammals dataset
+library(ggthemes)
+library(grid)
+
 
 ```
 
@@ -43,7 +48,7 @@ library(Hmisc)
 
 ```{r, message = FALSE}
 
-
+mamsleep <- read_csv("mamsleep.csv")
 
 ```
 
@@ -505,11 +510,224 @@ wt.cyl.am +
 The Coordinates and Facets layers offer specific and very useful tools for efficiently and accurately communicating data. In this chapter we'll look at the various ways of effectively using these two layers.
 
 ##Zooming In
+
+In the video, you saw different ways of using the coordinates layer to zoom in. In this exercise, we'll compare some of the techniques again.
+
+As usual, you'll be working with the mtcars dataset, which is already cleaned up for you (cyl and am are categorical variables). Also p, a ggplot object you coded in the previous chapter, is already available. Execute p in the console to check it out.
+
+INSTRUCTIONS
+
+Extend p with a scale_x_continuous() with limits = c(3, 6) and expand = c(0, 0). What do you see?
+Try again, this time with coord_cartesian(): Set the xlim argument equal to c(3, 6). Compare the two plots.
+
+```{r}
+# Basic ggplot() command, coded for you
+p <- ggplot(mtcars, aes(x = wt, y = hp, col = am)) + geom_point() + geom_smooth()
+
+# Add scale_x_continuous()
+p + scale_x_continuous(limits = c(3,6), expand = c(0,0))
+
+# Add coord_cartesian(): the proper way to zoom in
+p + coord_cartesian(xlim = c(3,6))
+
+```
+
+
 ##Aspect Ratio
+
+We can set the aspect ratio of a plot with coord_fixed() or coord_equal(). Both use ratio = 1 as a default. A 1:1 aspect ratio is most appropriate when two continuous variables are on the same scale, as with the iris dataset.
+
+All variables are measured in centimeters, so it only makes sense that one unit on the plot should be the same physical distance on each axis. This gives a more truthful depiction of the relationship between the two variables since the aspect ratio can change the angle of our smoothing line. This would give an erroneous impression of the data.
+
+Of course the underlying linear models don't change, but our perception can be influenced by the angle drawn.
+
+INSTRUCTIONS
+
+Complete the basic scatter plot function using the iris data frame to plot Sepal.Width onto the y aesthetic, Sepal.Length onto the x and Species onto col. You should understand all the other functions used in this plot call by now. This is saved in an object called base.plot.
+Write base.plot on a new line to print it out. Examine it: the plot is drawn to the dimensions of the graphics device.
+Add a coord_equal() layer to force a 1:1 aspect ratio.
+
+```{r}
+# Complete basic scatter plot function
+base.plot <- ggplot(iris, aes(x = Sepal.Length, y = Sepal.Width, col = Species)) +
+               geom_jitter() +
+               geom_smooth(method = "lm", se = FALSE)
+
+# Plot base.plot: default aspect ratio
+base.plot
+
+# Fix aspect ratio (1:1) of base.plot
+base.plot + coord_equal()
+```
+
+
 ##Pie Charts
+
+The coord_polar() function converts a planar x-y Cartesian plot to polar coordinates. This can be useful if you are producing pie charts.
+
+We can imagine two forms for pie charts - the typical filled circle, or a colored ring.
+
+As an example, consider the stacked bar chart shown in the viewer. Imagine that we just take the y axis on the left and bend it until it loops back on itself, while expanding the right side as we go along. We'd end up with a pie chart - it's simply a bar chart transformed onto a polar coordinate system.
+
+Typical pie charts omit all of the non-data ink, which we'll learn about in the next chapter. Pie charts are not really better than stacked bar charts, but we'll come back to this point in the fourth chapter on best practices.
+
+The mtcars data frame is available, with cyl converted to a factor for you.
+
+INSTRUCTIONS
+
+Create a basic stacked bar plot. Since we have univariate data and stat_bin() requires an x aesthetic, we'll have to use a dummy variable. Set x to 1 and map cyl onto fill. Assign the bar plot to wide.bar.
+
+Add a coord_polar() layer to wide.bar. Set the argument theta to "y". This specifies the axis which would be transformed to polar coordinates.
+
+Repeat the code for the stacked bar plot, but this time:
+
+Set the width argument inside the geom_bar() function to 0.1 and
+
+Use scale_x_continuous() to set the limits argument to c(0.5,1.5)). These two steps will add empty space aroung the bar on the x axis.
+Assign this plot to thin.bar.
+
+Add a coord_polar() layer to thin.bar, as you did before. There's a ring structure instead of a pie!
+
+```{r}
+# Create a stacked bar plot: wide.bar
+wide.bar <- ggplot(mtcars, aes(x = 1, fill = cyl)) +
+              geom_bar()
+
+# Convert wide.bar to pie chart
+wide.bar +
+  coord_polar(theta = "y")
+
+# Create stacked bar plot: thin.bar
+thin.bar <- ggplot(mtcars, aes(x = 1, fill = cyl)) +
+              geom_bar(width = 0.1) +
+              scale_x_continuous(limits = c(0.5, 1.5))
+
+# Convert thin.bar to "ring" type pie chart
+thin.bar + 
+  coord_polar(theta = "y")
+```
+
+
 ##Facets: the basics
+
+The most straightforward way of using facets is facet_grid(). Here we just need to specify the categorical variable to use on rows and columns using standard R formula notation (rows ~ columns).
+
+Notice that we can also take advantage of ordinal variables by positioning them in the correct order as columns or rows, as is the case with the number of cylinders. Get some hands-on practice in this exercise; ggplot2 is already loaded for you and mtcars is available. The variables cyl and am are factors. However, this is not necessary for facets; ggplot2 will coerce variables to factors in this case.
+
+INSTRUCTIONS
+100 XP
+Starting from the basic scatter plot, use facet_grid() and the formula notation to facet the plot in three different ways:
+
+1 - Rows by am.
+2 - Columns by cyl.
+3 - Rows and columns by am and cyl.
+
+Remember, when faceting in only one direction us . to specify nothing for the unused direction
+
+```{r}
+# Basic scatter plot
+p <- ggplot(mtcars, aes(x = wt, y = mpg)) +
+  geom_point()
+
+# 1 - Separate rows according to transmission type, am
+p +
+  facet_grid(am ~ .)
+
+# 2 - Separate columns according to cylinders, cyl
+p +
+  facet_grid(. ~ cyl)
+
+# 3 - Separate by both columns and rows 
+p +
+  facet_grid(am ~ cyl)
+
+```
+
+
 ##Many variables
+
+Facets are another way of presenting categorical variables. Recall that we saw all the ways of combining variables, both categorical and continuous, in the aesthetics chapter. Sometimes it's possible to overdo it. Here we'll present a plot with 6 variables and see if we can add even more.
+
+Let's begin by using a trick to map two variables onto two color scales - hue and lightness. We combine cyl and am into a single variable cyl_am. To accommodate this we also make a new color palette with alternating red and blue of increasing darkness. This is saved as myCol. If you are not familiar with these steps, execute the code piece-by-piece.
+
+INSTRUCTIONS
+100 XP
+1 - Beginning with the basic scatter plot:
+
+Add a col aesthetic for cyl_am inside the existing aes() function.
+
+Add a scale_color_manual() layer using the vector myCol for the values argument.
+
+2 - Copy your scatter plot code from the previous instruction.
+
+Add a facet_grid() layer, facetting the plot according to gear on rows and vs on columns (0 is a V-engine and 1 is a straight engine).
+
+Now we have 6 variables in total (4 categorical variables and 2 continuous variables). The plot is still readable, but it's starting to get difficult.
+
+3 - Try to add one more variable, using size. Map disp, the displacement volume from each cylinder, onto the size aesthetic inside the existing aes() function.
+
+```{r}
+# Code to create the cyl_am col and myCol vector
+mtcars$cyl_am <- paste(mtcars$cyl, mtcars$am, sep = "_")
+myCol <- rbind(brewer.pal(9, "Blues")[c(3,6,8)],
+               brewer.pal(9, "Reds")[c(3,6,8)])
+
+# Map cyl_am onto col
+ggplot(mtcars, aes(x = wt, y = mpg, col = cyl_am)) +
+  geom_point() +
+  # Add a manual colour scale
+  scale_color_manual(values = myCol)
+
+  
+# Grid facet on gear vs. vs
+ggplot(mtcars, aes(x = wt, y = mpg, col = cyl_am)) +
+  geom_point() +
+  # Add a manual colour scale
+  scale_color_manual(values = myCol) +
+  facet_grid(gear ~ vs)
+
+# Also map disp to size
+ggplot(mtcars, aes(x = wt, y = mpg, col = cyl_am, size = disp)) +
+  geom_point() +
+  # Add a manual colour scale
+  scale_color_manual(values = myCol) +
+  facet_grid(gear ~ vs)
+
+```
+
+
 ##Dropping levels
+
+When you have a categorical variable with many levels which are not all present in each sub-group of another variable, it may be desirable to drop the unused levels. As an example let's return to the mammalian sleep dataset, mamsleep. It is available in your workspace.
+
+The variables of interest here are name, which contains the full popular name of each animal, and vore, the eating behavior. Each animal can only be classified under one eating habit, so if we facet according to vore, we don't need to repeat the full list in each sub-plot.
+
+INSTRUCTIONS
+
+A basic plot, object p, is defined for you. time is mapped onto the x, name onto the y and sleep onto the col aesthetics.
+To see the plot execute p.
+Facet p by rows according to vore. If you look at the resulting plot, you'll notice that there are a lot of lines where no data is available.
+Extend facet_grid with scale = "free_y" and space = "free_y" to leave out rows for which there is no data.
+
+```{r}
+
+# Basic scatter plot
+p <- ggplot(mamsleep, aes(x = time, y = name, col = sleep)) +
+  geom_point()
+  
+# Execute to display plot
+p
+
+# Facet rows accoding to vore
+p +
+  facet_grid(vore ~ .)
+
+# Specify scale and space arguments to free up rows
+p +
+  facet_grid(vore ~ ., scale = "free_y", space = "free_y")
+
+```
+
 
 
 #Chapter 3: Themes
@@ -517,12 +735,323 @@ The Coordinates and Facets layers offer specific and very useful tools for effic
 Now that you've built high-quality plots, it's time to make them pretty. This is the last step in the data viz process. The Themes layer will enable you to make publication quality plots directly in R.
 
 ##Rectangles
+
+To understand all the arguments for the themes, you'll modify an existing plot over the next series of exercises.
+
+Here you'll focus on the rectangles of the plotting object z that has already been created for you. If you type z in the console, you can check it out. The goal is to turn z into the plot in the viewer. Do this by following the instructions step by step.
+
+INSTRUCTIONS
+
+Plot 1: In the theme() function added to z, set the plot.background argument to element_rect(fill = myPink). myPink is already available in the workspace for you.
+
+Plot 2: Expand your code for Plot 1 by adding a border to the plot.background. Do this by adding 2 arguments to the element_rect() function in theme(): color and size. Set them to "black" and 3, respectively.
+
+Plot 3: we don't want the plot panels and legend to appear as they are in Plot 2. A short cut is to remove all rectangles, as defined in the theme object no_panels, and then draw the one we way in the way we want. Copy your theme() layer from Plot 2 and add it to no_panels.
+```{r, echo = FALSE}
+z <- ggplot(mtcars, aes(x = wt, y = mpg, alpha = cyl)) +
+  geom_point(color = "darkblue") + 
+  geom_smooth(method = "lm", se = FALSE) +
+  facet_grid(. ~ cyl) +
+  labs(x = "Weight (lb/1000)", y = "Miles/(US) gallon", alpha = "Cylinders")
+
+z2 <- ggplot(mtcars, aes(x = wt, y = mpg, alpha = cyl)) +
+  geom_point(color = "darkblue") + 
+  geom_smooth(method = "lm", se = FALSE) +
+  facet_grid(. ~ cyl) +
+  labs(x = "Weight (lb/1000)", y = "Miles/(US) gallon", alpha = "Cylinders")
+
+
+myPink <- "#FEE0D2"
+```
+
+
+
+```{r}
+# Starting point
+z
+
+# Plot 1: Change the plot background fill to myPink
+z +
+  theme(plot.background = element_rect(fill = myPink))
+
+# Plot 2: Adjust the border to be a black line of size 3
+z +
+  theme(plot.background = element_rect(fill = myPink, color = "black", size = 3)) # expanded from plot 1
+
+# Theme to remove all rectangles
+no_panels <- theme(rect = element_blank())
+
+# Plot 3: Combine custom themes
+z +
+  no_panels +
+  theme(plot.background = element_rect(fill = myPink, color = "black", size = 3)) # from plot 2
+
+#For next section
+z <- z +
+  no_panels +
+  theme(plot.background = element_rect(fill = myPink, color = "black", size = 3)) # from plot 2
+
+```
+
+
 ##Lines
+
+To change the appearance of lines use the element_line() function.
+
+The plot you created in the last exercise, with the fancy pink background, is available as the plotting object z. Your goal is to produce the plot in the viewer - no grid lines, but red axes and tick marks.
+
+For each of the arguments that specify lines, use element_line() to modify attributes. e.g. element_line(color = "red").
+
+Remember, to remove a non-data element, use element_blank().
+
+INSTRUCTIONS
+100 XP
+Starting with object z, add a theme() function to:
+
+remove the grid lines using the panel.grid argument.
+add red axis lines using the axis.line argument.
+change the tick marks to red using the axis.ticks argument, similar to how you specified 
+
+```{r}
+# Extend z using theme() function and 3 args
+z +
+  theme(panel.grid = element_blank(),
+        axis.line = element_line(color = "red"),
+        axis.ticks = element_line(color = "red")
+        )
+#For next section
+z <- z +
+  theme(panel.grid = element_blank(),
+        axis.line = element_line(color = "red"),
+        axis.ticks = element_line(color = "red")
+        )
+
+```
+
+
 ##Text
+
+Next we can make the text on your plot prettier and easier to spot. You can do this through the element_text() function and by passing the appropriate arguments inside the theme() function.
+
+As before, the plot you've created in the previous exercise is available as z. The plot you should end up with after successfully completing this exercises is shown in the viewer.
+
+INSTRUCTIONS
+
+Starting from z, add a theme() function to:
+
+Change the appearance of the strip text, that is the text in the facet strips. Specify strip.text with element_text(). The size of the text should be 16, the color should be myRed, a color that is predefined for you.
+Change the axis titles. Specify both axes with the axis.title argument and use element_text() to set the parameters: color = myRed, hjust = 0 (to put the text in the bottom left corner) and face = "italic".
+Make the axis text black using the axis.text argument to do so.
+
+```{r}
+myRed <- "#99000D"
+
+# Original plot, color provided
+z
+myRed
+
+# Extend z with theme() function and 3 args
+z +
+  theme(strip.text = element_text(size = 16, color = myRed),
+        axis.title = element_text(color = myRed, hjust = 0, face = "italic"),
+        axis.text = element_text(color = "black"))
+
+#for next section
+z <- z +
+  theme(strip.text = element_text(size = 16, color = myRed),
+        axis.title = element_text(color = myRed, hjust = 0, face = "italic"),
+        axis.text = element_text(color = "black"))
+```
+
+
+
 ##Legends
+
+The themes layer also allows you to specify the appearance and location of legends.
+
+The plot you've coded up to now is available as z. It's also displayed in the viewer. Solve the instructions and compare the resulting plots with the plot you started with.
+
+INSTRUCTIONS
+
+Add a theme() function to z to change the legend's location. Do this by specifying the legend.position argument to be c(0.85, 0.85). This will make the legend appear in the top right of the plot, inside the third facet.
+Instead of a vertical list of legend entries, you might want to have the different entries next to each other. Starting from z, add a theme() function in which you specify legend.direction to be "horizontal".
+You can also change the locations of legends by name: set legend.position to "bottom".
+Finally, you can remove the legend entirely, by setting legend.position to "none".
+
+
+```{r}
+# Move legend by position
+z +
+  theme(legend.position = c(0.85, 0.85))
+
+# Change direction
+z +
+  theme(legend.direction = "horizontal")
+  
+# Change location by name
+z +
+  theme(legend.position = "bottom")
+
+# Remove legend entirely
+z +
+  theme(legend.position = "none")
+
+#For Next Section
+
+z <- z +
+  theme(legend.position = "none")
+```
+
+
 ##Positions
+The different rectangles of your plot have spacing between them. There's spacing between the facets, between the axis labels and the plot rectangle, between the plot rectangle and the entire panel background, etc. Let's experiment!
+
+The last plot you created in the previous exercise, without a legend, is available as z.
+
+INSTRUCTIONS
+
+Suppose you want to have more spacing between the different facets. You can control this by specifying panel.spacing.x inside a theme() function you add to z. For the argument value, you should pass a unit object. To achieve this, load the grid package with library(). Next, set panel.spacing.x to unit(2, "cm").
+Copy, adapt and paste the plot command for the previous instruction: to adjust the plot margin, set plot.margin to unit(c(1,2,1,1), "cm") (spacing for top, right, bottom, and left margins).
+
+
+```{r}
+# Increase spacing between facets
+#install.packages("grid")
+library(grid)
+
+z +
+  theme(panel.spacing.x = unit(2, "cm"))
+
+
+# Adjust the plot margin
+z +
+  theme(panel.spacing.x = unit(2, "cm"), plot.margin = unit(c(1,2,1,1), "cm"))
+
+```
+
+
 ##Updating Themes
+Building your themes every time from scratch can become a pain and unnecessarily bloat your scripts. In the following exercises, we'll practice different ways of managing, updating and saving themes.
+
+A plot object z2 is already created for you on the right. It shows mpg against wt for the mtcars dataset, faceted according to cyl. Also the colors myPink and myRed are available. In the previous exercises you've already customized the rectangles, lines and text on the plot. This theme layer is now separately stored as theme_pink, as shown in the sample code.
+
+theme_update() updates the default theme used by ggplot2. The arguments for theme_update() are the same as for theme(). When you call theme_update() and assign it to an object (e.g. called old), that object stores the current default theme, and the arguments update the default theme. If you want to restore the previous default theme, you can get it back by using theme_update() again. Let's see how:
+
+INSTRUCTIONS
+
+1 - "Apply" theme_pink to z2 to carry out all customizations.
+2 - Instead of applying theme_pink, use theme_update(). This function returns an object that contains the previous theme settings, so that you can restore it later. Assign the output of theme_update() to an object called old.
+3 - Plot z2 again, after the theme_update() call. The resulting plot has the same appearance as the previous one - but now you don't need to call theme() explictly.
+4 - Restore the old theme using theme_set(old) and plot z2 again. It's back to the original default theme.
+
+```{r}
+# Original plot
+z2
+
+# Theme layer saved as an object, theme_pink
+theme_pink <- theme(panel.background = element_blank(),
+                    legend.key = element_blank(),
+                    legend.background = element_blank(),
+                    strip.background = element_blank(),
+                    plot.background = element_rect(fill = myPink, color = "black", size = 3),
+                    panel.grid = element_blank(),
+                    axis.line = element_line(color = "red"),
+                    axis.ticks = element_line(color = "red"),
+                    strip.text = element_text(size = 16, color = myRed),
+                    axis.title.y = element_text(color = myRed, hjust = 0, face = "italic"),
+                    axis.title.x = element_text(color = myRed, hjust = 0, face = "italic"),
+                    axis.text = element_text(color = "black"),
+                    legend.position = "none")
+  
+# 1 - Apply theme_pink to z2
+z2 +
+  theme_pink
+
+# 2 - Update the default theme, and at the same time
+# assign the old theme to the object old.
+old <- theme_update(panel.background = element_blank(),
+             legend.key = element_blank(),
+             legend.background = element_blank(),
+             strip.background = element_blank(),
+             plot.background = element_rect(fill = myPink, color = "black", size = 3),
+             panel.grid = element_blank(),
+             axis.line = element_line(color = "red"),
+             axis.ticks = element_line(color = "red"),
+             strip.text = element_text(size = 16, color = myRed),
+             axis.title.y = element_text(color = myRed, hjust = 0, face = "italic"),
+             axis.title.x = element_text(color = myRed, hjust = 0, face = "italic"),
+             axis.text = element_text(color = "black"),
+             legend.position = "none")
+
+# 3 - Display the plot z2 - new default theme used
+z2
+
+# 4 - Restore the old default theme
+theme_set(old)
+
+# Display the plot z2 - old theme restored
+z2
+
+```
+
+
 ##Exploring ggthemes
+
+There are many themes available by default in ggplot2: theme_bw(), theme_classic(), theme_gray(), etc. In the previous exercise, you saw that you can apply these themes to all following plots, with theme_set():
+
+```
+theme_set(theme_bw())
+```
+
+But you can also apply them on an individual plot, with:
+
+```
+... + theme_bw()
+```
+
+You can also extend these themes with your own modifications. In this exercise, you'll experiment with this and use some preset templates available from the ggthemes package. The workspace already contains the same basic plot from before under the name z2.
+
+INSTRUCTIONS
+
+Create a custom theme, assigning it to custom_theme.
+Call theme_tufte() with no arguments.
+Add a call to theme() as follows.
+Set legend.position to c(0.9, 0.9).
+Set legend.title to an "italic" text of size 12. Use `element_text(face = ___, size = ___)`.
+Set axis.title to a "bold" text of size 14. Use `element_text(face = ___, size = ___)`.
+Plot z2 with the customized theme. (You don't need parentheses.)
+Make custom_theme the default by calling theme_set().
+Plot z2 again.
+
+```{r}
+z2 <- ggplot(mtcars, aes(x = wt, y = mpg, alpha = cyl)) +
+  geom_point(color = "darkblue") + 
+  geom_smooth(method = "lm", se = FALSE) +
+  labs(x = "Weight (lb/1000)", y = "Miles/(US) gallon", alpha = "Cylinders")
+
+# Original plot
+z2
+
+# Load ggthemes
+library(ggthemes)
+
+# Apply theme_tufte(), plot additional modifications
+custom_theme <- theme_tufte() +
+  theme(legend.position = c(0.9, 0.9),
+        legend.title = element_text(face = "italic", size = 12),
+        axis.title = element_text(face = "bold", size = 14))
+
+# Draw the customized plot
+z2 + custom_theme
+ 
+# Use theme set to set custom theme as default
+theme_set(custom_theme)
+
+# Plot z2 again
+z2
+
+```
+
 
 
 #Chapter 4: Best Practices
