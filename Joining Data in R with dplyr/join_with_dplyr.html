@@ -93,6 +93,9 @@ img {
 .tabbed-pane {
   padding-top: 12px;
 }
+.html-widget {
+  margin-bottom: 20px;
+}
 button.code-folding-btn:focus {
   outline: none;
 }
@@ -231,7 +234,10 @@ div.tocify {
 <h2>Required packages for this session</h2>
 <p>Below are the install.packages and libraries you will need to have in order to run this session successfully.</p>
 <pre class="r"><code>library(readr)
-library(dplyr)</code></pre>
+library(dplyr)
+library(tibble)
+library(purrr)
+library(Lahman) #Baseball datasets</code></pre>
 </div>
 <div id="required-data-for-this-session" class="section level2">
 <h2>Required data for this session</h2>
@@ -272,20 +278,20 @@ bands2 &lt;- left_join(bands, artists, by = c(&quot;first&quot;, &quot;last&quot
 # Examine the results
 bands2</code></pre>
 <pre><code>## # A tibble: 12 x 4
-##    first     last     band               instrument
-##    &lt;chr&gt;     &lt;chr&gt;    &lt;chr&gt;              &lt;chr&gt;     
-##  1 John      Bonham   Led Zeppelin       &lt;NA&gt;      
-##  2 John Paul Jones    Led Zeppelin       &lt;NA&gt;      
-##  3 Jimmy     Page     Led Zeppelin       Guitar    
-##  4 Robert    Plant    Led Zeppelin       &lt;NA&gt;      
-##  5 George    Harrison The Beatles        Guitar    
-##  6 John      Lennon   The Beatles        Guitar    
-##  7 Paul      McCartne y The Beatles      &lt;NA&gt;      
-##  8 Ringo     Starr    The Beatles        Drums     
-##  9 Jimmy     Buffett  The Coral Reefers  Guitar    
-## 10 Mick      Jagger   The Rolling Stones Vocals    
-## 11 Keith     Richards The Rolling Stones Guitar    
-## 12 Charlie   Watts    The Rolling Stones &lt;NA&gt;</code></pre>
+##    first     last      band               instrument
+##    &lt;chr&gt;     &lt;chr&gt;     &lt;chr&gt;              &lt;chr&gt;     
+##  1 John      Bonham    Led Zeppelin       &lt;NA&gt;      
+##  2 John Paul Jones     Led Zeppelin       &lt;NA&gt;      
+##  3 Jimmy     Page      Led Zeppelin       Guitar    
+##  4 Robert    Plant     Led Zeppelin       &lt;NA&gt;      
+##  5 George    Harrison  The Beatles        Guitar    
+##  6 John      Lennon    The Beatles        Guitar    
+##  7 Paul      McCartney The Beatles        Bass      
+##  8 Ringo     Starr     The Beatles        Drums     
+##  9 Jimmy     Buffett   The Coral Reefers  Guitar    
+## 10 Mick      Jagger    The Rolling Stones Vocals    
+## 11 Keith     Richards  The Rolling Stones Guitar    
+## 12 Charlie   Watts     The Rolling Stones &lt;NA&gt;</code></pre>
 </div>
 <div id="a-second-join" class="section level2">
 <h2>A second join</h2>
@@ -297,20 +303,20 @@ bands2</code></pre>
 <pre class="r"><code># Fix the code to recreate bands2
 left_join(bands, artists, by = c(&quot;first&quot;, &quot;last&quot;))</code></pre>
 <pre><code>## # A tibble: 12 x 4
-##    first     last     band               instrument
-##    &lt;chr&gt;     &lt;chr&gt;    &lt;chr&gt;              &lt;chr&gt;     
-##  1 John      Bonham   Led Zeppelin       &lt;NA&gt;      
-##  2 John Paul Jones    Led Zeppelin       &lt;NA&gt;      
-##  3 Jimmy     Page     Led Zeppelin       Guitar    
-##  4 Robert    Plant    Led Zeppelin       &lt;NA&gt;      
-##  5 George    Harrison The Beatles        Guitar    
-##  6 John      Lennon   The Beatles        Guitar    
-##  7 Paul      McCartne y The Beatles      &lt;NA&gt;      
-##  8 Ringo     Starr    The Beatles        Drums     
-##  9 Jimmy     Buffett  The Coral Reefers  Guitar    
-## 10 Mick      Jagger   The Rolling Stones Vocals    
-## 11 Keith     Richards The Rolling Stones Guitar    
-## 12 Charlie   Watts    The Rolling Stones &lt;NA&gt;</code></pre>
+##    first     last      band               instrument
+##    &lt;chr&gt;     &lt;chr&gt;     &lt;chr&gt;              &lt;chr&gt;     
+##  1 John      Bonham    Led Zeppelin       &lt;NA&gt;      
+##  2 John Paul Jones     Led Zeppelin       &lt;NA&gt;      
+##  3 Jimmy     Page      Led Zeppelin       Guitar    
+##  4 Robert    Plant     Led Zeppelin       &lt;NA&gt;      
+##  5 George    Harrison  The Beatles        Guitar    
+##  6 John      Lennon    The Beatles        Guitar    
+##  7 Paul      McCartney The Beatles        Bass      
+##  8 Ringo     Starr     The Beatles        Drums     
+##  9 Jimmy     Buffett   The Coral Reefers  Guitar    
+## 10 Mick      Jagger    The Rolling Stones Vocals    
+## 11 Keith     Richards  The Rolling Stones Guitar    
+## 12 Charlie   Watts     The Rolling Stones &lt;NA&gt;</code></pre>
 </div>
 <div id="a-right-join" class="section level2">
 <h2>A right join</h2>
@@ -344,20 +350,29 @@ inner_join(songs, albums, by = &quot;album&quot;)</code></pre>
 ## 3 Hello, Goodbye Magical Mystery Tour Paul   McCartney The Beatles  1967</code></pre>
 <pre class="r"><code># Join bands to artists using full_join()
 full_join(artists, bands, by = c(&quot;first&quot;, &quot;last&quot;))</code></pre>
-<pre><code>## # A tibble: 21 x 4
-##    first  last      instrument band              
-##    &lt;chr&gt;  &lt;chr&gt;     &lt;chr&gt;      &lt;chr&gt;             
-##  1 Jimmy  Buffett   Guitar     The Coral Reefers 
-##  2 George Harrison  Guitar     The Beatles       
-##  3 Mick   Jagger    Vocals     The Rolling Stones
-##  4 Tom    Jones     Vocals     &lt;NA&gt;              
-##  5 Davy   Jones     Vocals     &lt;NA&gt;              
-##  6 John   Lennon    Guitar     The Beatles       
-##  7 Paul   McCartney Bass       &lt;NA&gt;              
-##  8 Jimmy  Page      Guitar     Led Zeppelin      
-##  9 Joe    Perry     Guitar     &lt;NA&gt;              
-## 10 Elvis  Presley   Vocals     &lt;NA&gt;              
-## # ... with 11 more rows</code></pre>
+<pre><code>## # A tibble: 20 x 4
+##    first     last      instrument band              
+##    &lt;chr&gt;     &lt;chr&gt;     &lt;chr&gt;      &lt;chr&gt;             
+##  1 Jimmy     Buffett   Guitar     The Coral Reefers 
+##  2 George    Harrison  Guitar     The Beatles       
+##  3 Mick      Jagger    Vocals     The Rolling Stones
+##  4 Tom       Jones     Vocals     &lt;NA&gt;              
+##  5 Davy      Jones     Vocals     &lt;NA&gt;              
+##  6 John      Lennon    Guitar     The Beatles       
+##  7 Paul      McCartney Bass       The Beatles       
+##  8 Jimmy     Page      Guitar     Led Zeppelin      
+##  9 Joe       Perry     Guitar     &lt;NA&gt;              
+## 10 Elvis     Presley   Vocals     &lt;NA&gt;              
+## 11 Keith     Richards  Guitar     The Rolling Stones
+## 12 Paul      Simon     Guitar     &lt;NA&gt;              
+## 13 Ringo     Starr     Drums      The Beatles       
+## 14 Joe       Walsh     Guitar     &lt;NA&gt;              
+## 15 Brian     Wilson    Vocals     &lt;NA&gt;              
+## 16 Nancy     Wilson    Vocals     &lt;NA&gt;              
+## 17 John      Bonham    &lt;NA&gt;       Led Zeppelin      
+## 18 John Paul Jones     &lt;NA&gt;       Led Zeppelin      
+## 19 Robert    Plant     &lt;NA&gt;       Led Zeppelin      
+## 20 Charlie   Watts     &lt;NA&gt;       The Rolling Stones</code></pre>
 </div>
 <div id="pipes" class="section level2">
 <h2>Pipes</h2>
@@ -405,11 +420,11 @@ bands %&gt;%
 <pre class="r"><code># Examine the contents of the goal dataset
 goal</code></pre>
 <pre><code>## # A tibble: 3 x 6
-##   first last      instrument band        song             album           
-##   &lt;chr&gt; &lt;chr&gt;     &lt;chr&gt;      &lt;chr&gt;       &lt;chr&gt;            &lt;chr&gt;           
-## 1 Tom   Jones     Vocals     &lt;NA&gt;        It's Not Unusual Along Came Jones
-## 2 John  Lennon    Guitar     The Beatles Come Together    Abbey Road      
-## 3 Paul  McCartney Bass       &lt;NA&gt;        Hello, Goodbye   Magical Mystery~</code></pre>
+##   first last      instrument band        song           album             
+##   &lt;chr&gt; &lt;chr&gt;     &lt;chr&gt;      &lt;chr&gt;       &lt;chr&gt;          &lt;chr&gt;             
+## 1 Tom   Jones     Vocals     &lt;NA&gt;        It's Not Unus~ Along Came Jones  
+## 2 John  Lennon    Guitar     The Beatles Come Together  Abbey Road        
+## 3 Paul  McCartney Bass       The Beatles Hello, Goodbye Magical Mystery T~</code></pre>
 <pre class="r"><code># Create goal2 using full_join() and inner_join() 
 goal2 &lt;- artists %&gt;%
   full_join(bands, by = c(&quot;first&quot;, &quot;last&quot;)) %&gt;%
@@ -432,20 +447,20 @@ artists %&gt;%
   full_join(bands,  by = c(&quot;first&quot;, &quot;last&quot;)) %&gt;%
   full_join(songs,  by = c(&quot;first&quot;, &quot;last&quot;)) %&gt;%
   full_join(albums, by = c(&quot;album&quot;, &quot;band&quot;))</code></pre>
-<pre><code>## # A tibble: 30 x 7
-##    first  last      instrument band               song     album      year
-##    &lt;chr&gt;  &lt;chr&gt;     &lt;chr&gt;      &lt;chr&gt;              &lt;chr&gt;    &lt;chr&gt;     &lt;int&gt;
-##  1 Jimmy  Buffett   Guitar     The Coral Reefers  &lt;NA&gt;     &lt;NA&gt;         NA
-##  2 George Harrison  Guitar     The Beatles        &lt;NA&gt;     &lt;NA&gt;         NA
-##  3 Mick   Jagger    Vocals     The Rolling Stones &lt;NA&gt;     &lt;NA&gt;         NA
-##  4 Tom    Jones     Vocals     &lt;NA&gt;               It's No~ Along Ca~    NA
-##  5 Davy   Jones     Vocals     &lt;NA&gt;               &lt;NA&gt;     &lt;NA&gt;         NA
-##  6 John   Lennon    Guitar     The Beatles        Come To~ Abbey Ro~  1969
-##  7 Paul   McCartney Bass       &lt;NA&gt;               Hello, ~ Magical ~    NA
-##  8 Jimmy  Page      Guitar     Led Zeppelin       &lt;NA&gt;     &lt;NA&gt;         NA
-##  9 Joe    Perry     Guitar     &lt;NA&gt;               &lt;NA&gt;     &lt;NA&gt;         NA
-## 10 Elvis  Presley   Vocals     &lt;NA&gt;               &lt;NA&gt;     &lt;NA&gt;         NA
-## # ... with 20 more rows</code></pre>
+<pre><code>## # A tibble: 28 x 7
+##    first  last     instrument band         song        album          year
+##    &lt;chr&gt;  &lt;chr&gt;    &lt;chr&gt;      &lt;chr&gt;        &lt;chr&gt;       &lt;chr&gt;         &lt;int&gt;
+##  1 Jimmy  Buffett  Guitar     The Coral R~ &lt;NA&gt;        &lt;NA&gt;             NA
+##  2 George Harrison Guitar     The Beatles  &lt;NA&gt;        &lt;NA&gt;             NA
+##  3 Mick   Jagger   Vocals     The Rolling~ &lt;NA&gt;        &lt;NA&gt;             NA
+##  4 Tom    Jones    Vocals     &lt;NA&gt;         It's Not U~ Along Came J~    NA
+##  5 Davy   Jones    Vocals     &lt;NA&gt;         &lt;NA&gt;        &lt;NA&gt;             NA
+##  6 John   Lennon   Guitar     The Beatles  Come Toget~ Abbey Road     1969
+##  7 Paul   McCartn~ Bass       The Beatles  Hello, Goo~ Magical Myst~  1967
+##  8 Jimmy  Page     Guitar     Led Zeppelin &lt;NA&gt;        &lt;NA&gt;             NA
+##  9 Joe    Perry    Guitar     &lt;NA&gt;         &lt;NA&gt;        &lt;NA&gt;             NA
+## 10 Elvis  Presley  Vocals     &lt;NA&gt;         &lt;NA&gt;        &lt;NA&gt;             NA
+## # ... with 18 more rows</code></pre>
 </div>
 </div>
 <div id="chapter-2-filtering-joins-and-set-operations" class="section level1">
@@ -500,18 +515,17 @@ artists %&gt;%
 <pre class="r"><code># Return rows of artists that don't have bands info
 artists %&gt;% 
   anti_join(bands, by = c(&quot;first&quot;, &quot;last&quot;))</code></pre>
-<pre><code>## # A tibble: 9 x 3
-##   first last      instrument
-##   &lt;chr&gt; &lt;chr&gt;     &lt;chr&gt;     
-## 1 Tom   Jones     Vocals    
-## 2 Davy  Jones     Vocals    
-## 3 Paul  McCartney Bass      
-## 4 Joe   Perry     Guitar    
-## 5 Elvis Presley   Vocals    
-## 6 Paul  Simon     Guitar    
-## 7 Joe   Walsh     Guitar    
-## 8 Brian Wilson    Vocals    
-## 9 Nancy Wilson    Vocals</code></pre>
+<pre><code>## # A tibble: 8 x 3
+##   first last    instrument
+##   &lt;chr&gt; &lt;chr&gt;   &lt;chr&gt;     
+## 1 Tom   Jones   Vocals    
+## 2 Davy  Jones   Vocals    
+## 3 Joe   Perry   Guitar    
+## 4 Elvis Presley Vocals    
+## 5 Paul  Simon   Guitar    
+## 6 Joe   Walsh   Guitar    
+## 7 Brian Wilson  Vocals    
+## 8 Nancy Wilson  Vocals</code></pre>
 </div>
 <div id="apply-another-anti-join" class="section level2">
 <h2>Apply another anti-join</h2>
@@ -636,23 +650,23 @@ one_songs</code></pre>
 <pre><code>## # A tibble: 17 x 1
 ##    song                                       
 ##    &lt;chr&gt;                                      
-##  1 One Way Street (live)                      
-##  2 Sweet Emotion (remix)                      
-##  3 Lightning Strikes                          
-##  4 Remember (Walking in the Sand)             
+##  1 I Ain't Got You                            
+##  2 Sick as a Dog                              
+##  3 Big Ten Inch Record                        
+##  4 Mother Popcorn/Draw the Line               
 ##  5 Draw the Line                              
-##  6 Kings and Queens                           
-##  7 Mother Popcorn/Draw the Line               
-##  8 Train Kept A-Rollin'/Strangers in the Night
-##  9 I Ain't Got You                            
-## 10 S.O.S. (Too Bad)                           
-## 11 Sick as a Dog                              
-## 12 Big Ten Inch Record                        
-## 13 Sight for Sore Eyes                        
-## 14 Seasons of Winter                          
-## 15 Toys in the Attic                          
-## 16 Same Old Song and Dance                    
-## 17 Lord of the Thighs</code></pre>
+##  6 Seasons of Winter                          
+##  7 S.O.S. (Too Bad)                           
+##  8 Same Old Song and Dance                    
+##  9 Sight for Sore Eyes                        
+## 10 Toys in the Attic                          
+## 11 Lord of the Thighs                         
+## 12 One Way Street (live)                      
+## 13 Sweet Emotion (remix)                      
+## 14 Lightning Strikes                          
+## 15 Remember (Walking in the Sand)             
+## 16 Kings and Queens                           
+## 17 Train Kept A-Rollin'/Strangers in the Night</code></pre>
 </div>
 <div id="apply-setequal" class="section level2">
 <h2>Apply setequal</h2>
@@ -1127,10 +1141,964 @@ as_data_frame(hank) %&gt;%
 <div id="chapter-4-advanced-joining" class="section level1">
 <h1>Chapter 4: Advanced joining</h1>
 <p>Now that you have the basics, let’s dive deep into the mechanics of joins. This chapter will show you how to spot common join problems, how to join based on multiple or mismatched keys, how to join multiple tables, and how to recreate dplyr’s joins with SQL and base R.</p>
+<div id="spot-the-key" class="section level2">
+<h2>Spot the key</h2>
+<p>R’s data frames can store important information in the row.names attribute. This is not a tidy way to store data, but it does happen quite commonly. If the primary key of your dataset is stored in row.names, you will have trouble joining it to other datasets.</p>
+<p>For example, stage_songs contains information about songs that appear in musicals. However, it stores the primary key (song name) in the row.names attribute. As a result, you cannot access the key with a join function.</p>
+<p>One way to remedy this problem is to use the function rownames_to_column() from the tibble package. rownames_to_column() returns a copy of a dataset with the row names added to the data as a column.</p>
+<p>INSTRUCTIONS</p>
+<p>Load the tibble package. Use rownames_to_column() to add the row names of stage_songs to the data frame as a column named song. Left join stage_writers to stage_songs.</p>
+<pre class="r"><code># Load the tibble package
+library(tibble)
+
+stage_songs %&gt;% 
+  # Add row names as a column named song
+  rownames_to_column(var = &quot;song&quot;) %&gt;% 
+  # Left join stage_writers to stage_songs
+  left_join(stage_writers, by = &quot;song&quot;)</code></pre>
+<pre><code>## # A tibble: 4 x 5
+##   song  X1                     musical               year composer
+##   &lt;chr&gt; &lt;chr&gt;                  &lt;chr&gt;                &lt;int&gt; &lt;chr&gt;   
+## 1 1     Children Will Listen   Into the Woods        1986 &lt;NA&gt;    
+## 2 2     Maria                  West Side Story       1957 &lt;NA&gt;    
+## 3 3     Memory                 Cats                  1981 &lt;NA&gt;    
+## 4 4     The Music of the Night Phantom of the Opera  1986 &lt;NA&gt;</code></pre>
+</div>
+<div id="missing-keys" class="section level2">
+<h2>Missing keys</h2>
+<p>Julie Andrews is a famous singer who performed in The Sound of Music, which is documented in the singers data frame. The two_songs data frame records a couple of songs that she sang during her career.</p>
+<p>Unfortunately, when you join the datasets together, something odd happens. According to the result, who sings A Spoonful of Sugar? Why does this happen?</p>
+<p>You can avoid this outcome by removing rows that contain NAs in the keys before joining.</p>
+<p>INSTRUCTIONS</p>
+<p>Take a look at singers and two_songs in the console.</p>
+<p>Examine the result of joining singers to two_songs. Add a filter() call to the pipe to remove NA’s from the key column of two_songs before calling inner_join().</p>
+<pre class="r"><code># Examine the result of joining singers to two_songs
+two_songs %&gt;% inner_join(singers, by = &quot;movie&quot;)</code></pre>
+<pre><code>## # A tibble: 2 x 3
+##   song                movie              singer               
+##   &lt;chr&gt;               &lt;chr&gt;              &lt;chr&gt;                
+## 1 Do-Re-Mi            The Sound of Music Julie Andrews        
+## 2 A Spoonful of Sugar &lt;NA&gt;               Arnold Schwarzenegger</code></pre>
+<pre class="r"><code># Remove NA's from key before joining
+two_songs %&gt;% 
+  filter(!is.na(movie)) %&gt;% 
+  inner_join(singers, by = &quot;movie&quot;)</code></pre>
+<pre><code>## # A tibble: 1 x 3
+##   song     movie              singer       
+##   &lt;chr&gt;    &lt;chr&gt;              &lt;chr&gt;        
+## 1 Do-Re-Mi The Sound of Music Julie Andrews</code></pre>
+</div>
+<div id="a-subset-of-keys" class="section level2">
+<h2>A subset of keys</h2>
+<p>Often the same column name will be used by two datasets to refer to different things. For example, the data frame movie_studios uses name to refer to the name of a movie studio. movie_years uses name to refer to the name of an actor.</p>
+<p>You could join these datasets (they describe the same movies), but you wouldn’t want to use the name column to do so!</p>
+<p>dplyr will ignore duplicate column names if you set the by argument and do not include the duplicated name in the argument. When you do this, dplyr will treat the columns in the normal fashion, but it will add .x and .y to the duplicated names to help you tell the columns apart.</p>
+<p>INSTRUCTIONS</p>
+<p>Left join movie_studios to movie_years by the movie column. What happens to the duplicated column names? Use rename() to rename the name column of movie_years to artist, and the name column of movie_studios to studio. As an example, rename(data, new_name = old_name) renames old_name to new_name in data.</p>
+<pre class="r"><code>movie_years %&gt;% 
+  # Left join movie_studios to movie_years
+  left_join(movie_studios, by = &quot;movie&quot;) %&gt;% 
+  # Rename the columns: artist and studio
+  rename(artist = name.x, studio = name.y)</code></pre>
+<pre><code>## # A tibble: 10 x 4
+##    movie                   artist         year studio               
+##    &lt;chr&gt;                   &lt;chr&gt;         &lt;int&gt; &lt;chr&gt;                
+##  1 The Road to Morocco     Bing Crosby    1942 Paramount Pictures   
+##  2 Going My Way            Bing Crosby    1944 Paramount Pictures   
+##  3 Anchors Aweigh          Frank Sinatra  1945 Metro-Goldwyn-Mayer  
+##  4 Till the Clouds Roll By Frank Sinatra  1946 Metro-Goldwyn-Mayer  
+##  5 White Christmas         Bing Crosby    1954 Paramount Pictures   
+##  6 The Tender Trap         Frank Sinatra  1955 Metro-Goldwyn-Mayer  
+##  7 High Society            Bing Crosby    1956 Metro-Goldwyn-Mayer  
+##  8 The Joker is Wild       Frank Sinatra  1957 Paramount Pictures   
+##  9 Pal Joey                Frank Sinatra  1957 Columbia Pictures    
+## 10 Can-Can                 Frank Sinatra  1960 Twentieth-Century Fox</code></pre>
+</div>
+<div id="mis-matched-key-names" class="section level2">
+<h2>Mis-matched key names</h2>
+<p>Just as the same name can refer to different things in different datasets, different names can refer to the same thing. For example, elvis_movies and elvis_songs both describe movies starring Elvis Presley, but each uses a different column name to describe the name of the movie.</p>
+<p>This type of inconsistency can be frustrating when you wish to join data based on the inconsistently named variable.</p>
+<p>To make the join, set by to a named vector. The names of the vector will refer to column names in the primary dataset (x). The values of the vector will correspond to the column names in the secondary dataset (y), e.g.</p>
+<pre><code>x %&gt;% left_join(y, by = c(&quot;x.name1&quot; = &quot;y.name2&quot;))</code></pre>
+<p>dplyr will make the join and retain the names in the primary dataset.</p>
+<p>INSTRUCTIONS</p>
+<p>Identify the column in elvis_songs that corresponds to a column in elvis_movies. Left join elvis_songs to elvis_movies by this column. Use rename() to give the result the column names movie, year, and song.</p>
+<pre class="r"><code># Identify the key column
+elvis_songs</code></pre>
+<pre><code>## # A tibble: 5 x 2
+##   name                                 movie         
+##   &lt;chr&gt;                                &lt;chr&gt;         
+## 1 (You're So Square) Baby I Don't Care Jailhouse Rock
+## 2 I Can't Help Falling in Love         Blue Hawaii   
+## 3 Jailhouse Rock                       Jailhouse Rock
+## 4 Viva Las Vegas                       Viva Las Vegas
+## 5 You Don't Know Me                    Clambake</code></pre>
+<pre class="r"><code>elvis_movies</code></pre>
+<pre><code>## # A tibble: 4 x 2
+##   name            year
+##   &lt;chr&gt;          &lt;int&gt;
+## 1 Jailhouse Rock  1957
+## 2 Blue Hawaii     1961
+## 3 Viva Las Vegas  1963
+## 4 Clambake        1967</code></pre>
+<pre class="r"><code>elvis_movies %&gt;% 
+  # Left join elvis_songs to elvis_movies by this column
+  left_join(elvis_songs, by = c(&quot;name&quot; = &quot;movie&quot;)) %&gt;% 
+  # Rename columns
+  rename(movie = name, song = name.y)</code></pre>
+<pre><code>## # A tibble: 5 x 3
+##   movie           year song                                
+##   &lt;chr&gt;          &lt;int&gt; &lt;chr&gt;                               
+## 1 Jailhouse Rock  1957 (You're So Square) Baby I Don't Care
+## 2 Jailhouse Rock  1957 Jailhouse Rock                      
+## 3 Blue Hawaii     1961 I Can't Help Falling in Love        
+## 4 Viva Las Vegas  1963 Viva Las Vegas                      
+## 5 Clambake        1967 You Don't Know Me</code></pre>
+</div>
+<div id="more-mismatched-names" class="section level2">
+<h2>More mismatched names</h2>
+<p>Now, you’ll practice what you learned in the last exercise.</p>
+<p>movie_years and movie_directors both describe movies that feature Frank Sinatra and Bing Crosby. However, each data frame uses different column names to refer to the key variables that connect the datasets.</p>
+<p>Can you join the data?</p>
+<p>INSTRUCTIONS</p>
+<p>Identify the key columns that connect movie_directors to movie_years. Left join movie_directors to movie_years. Use select() to arrange the columns in the following order with the following names: year, movie, artist, director, studio.</p>
+<pre class="r"><code># Identify the key columns
+movie_directors</code></pre>
+<pre><code>## # A tibble: 10 x 3
+##    name                    director        studio               
+##    &lt;chr&gt;                   &lt;chr&gt;           &lt;chr&gt;                
+##  1 Anchors Aweigh          George Sidney   Metro-Goldwyn-Mayer  
+##  2 Can-Can                 Walter Lang     Twentieth-Century Fox
+##  3 Going My Way            Leo McCarey     Paramount Pictures   
+##  4 High Society            Charles Walters Metro-Goldwyn-Mayer  
+##  5 Pal Joey                George Sidney   Columbia Pictures    
+##  6 The Joker is Wild       Charles Vidor   Paramount Pictures   
+##  7 The Road to Morocco     David Butler    Paramount Pictures   
+##  8 The Tender Trap         Charles Walters Metro-Goldwyn-Mayer  
+##  9 Till the Clouds Roll By Richard Whorf   Metro-Goldwyn-Mayer  
+## 10 White Christmas         Michael Curtiz  Paramount Pictures</code></pre>
+<pre class="r"><code>movie_years</code></pre>
+<pre><code>## # A tibble: 10 x 3
+##    movie                   name           year
+##    &lt;chr&gt;                   &lt;chr&gt;         &lt;int&gt;
+##  1 The Road to Morocco     Bing Crosby    1942
+##  2 Going My Way            Bing Crosby    1944
+##  3 Anchors Aweigh          Frank Sinatra  1945
+##  4 Till the Clouds Roll By Frank Sinatra  1946
+##  5 White Christmas         Bing Crosby    1954
+##  6 The Tender Trap         Frank Sinatra  1955
+##  7 High Society            Bing Crosby    1956
+##  8 The Joker is Wild       Frank Sinatra  1957
+##  9 Pal Joey                Frank Sinatra  1957
+## 10 Can-Can                 Frank Sinatra  1960</code></pre>
+<pre class="r"><code>movie_years %&gt;% 
+  # Left join movie_directors to movie_years
+  left_join(movie_directors, by = c(&quot;movie&quot; = &quot;name&quot;)) %&gt;% 
+  # Arrange the columns using select()
+  select(year, movie, artist = &quot;name&quot;, director, studio)</code></pre>
+<pre><code>## # A tibble: 10 x 5
+##     year movie                artist       director      studio           
+##    &lt;int&gt; &lt;chr&gt;                &lt;chr&gt;        &lt;chr&gt;         &lt;chr&gt;            
+##  1  1942 The Road to Morocco  Bing Crosby  David Butler  Paramount Pictur~
+##  2  1944 Going My Way         Bing Crosby  Leo McCarey   Paramount Pictur~
+##  3  1945 Anchors Aweigh       Frank Sinat~ George Sidney Metro-Goldwyn-Ma~
+##  4  1946 Till the Clouds Rol~ Frank Sinat~ Richard Whorf Metro-Goldwyn-Ma~
+##  5  1954 White Christmas      Bing Crosby  Michael Curt~ Paramount Pictur~
+##  6  1955 The Tender Trap      Frank Sinat~ Charles Walt~ Metro-Goldwyn-Ma~
+##  7  1956 High Society         Bing Crosby  Charles Walt~ Metro-Goldwyn-Ma~
+##  8  1957 The Joker is Wild    Frank Sinat~ Charles Vidor Paramount Pictur~
+##  9  1957 Pal Joey             Frank Sinat~ George Sidney Columbia Pictures
+## 10  1960 Can-Can              Frank Sinat~ Walter Lang   Twentieth-Centur~</code></pre>
+</div>
+<div id="join-multiple-tables" class="section level2">
+<h2>Join multiple tables</h2>
+<p>purrr’s reduce() function is very useful for joining together multiple datasets. Let’s practice using it with three new datasets.</p>
+<p>supergroups lists the members of several “supergroup” bands, which are bands made from the members of other famous bands. more_bands lists the original band membership of many musicians, including those in supergroups. And more_artists lists the instruments that various artists played.</p>
+<p>Can you join these datasets into a single, coherent dataset?</p>
+<p>INSTRUCTIONS</p>
+<p>Load the purrr library. Place supergroups, more_bands, and more_artists into a list, in that order. Use reduce() to join together supergroups, more_bands, and more_artists into a dataset that contains all available information about each artist in supergroups (and no others).</p>
+<pre class="r"><code># Load the purrr library
+library(purrr)
+
+# Place supergroups, more_bands, and more_artists into a list
+list(supergroups, more_bands, more_artists) %&gt;% 
+  # Use reduce to join together the contents of the list
+  reduce(left_join, by = c(&quot;first&quot;, &quot;last&quot;))</code></pre>
+<pre><code>## # A tibble: 19 x 5
+##    supergroup             first   last      band                instrument
+##    &lt;chr&gt;                  &lt;chr&gt;   &lt;chr&gt;     &lt;chr&gt;               &lt;chr&gt;     
+##  1 Cream                  Ginger  Baker     Graham Bond Organi~ drums     
+##  2 Cream                  Jack    Bruce     Graham Bond Organi~ bass      
+##  3 Cream                  Jack    Bruce     Graham Bond Organi~ bass      
+##  4 Cream                  Jack    Bruce     Manfred Mann        bass      
+##  5 Cream                  Jack    Bruce     Manfred Mann        bass      
+##  6 Cream                  Eric    Clapton   The Yardbirds       guitar    
+##  7 Crosby, Stills, Nash,~ David   Crosby    The Byrds           guitar    
+##  8 Crosby, Stills, Nash,~ Graham  Nash      The Hollies         guitar    
+##  9 Crosby, Stills, Nash,~ Stephen Stills    Buffalo Springfield guitar    
+## 10 Crosby, Stills, Nash,~ Neil    Young     Buffalo Springfield guitar    
+## 11 The Highwaymen         Johnny  Cash      &lt;NA&gt;                guitar    
+## 12 The Highwaymen         Waylon  Jennings  &lt;NA&gt;                guitar    
+## 13 The Highwaymen         Kris    Kristoff~ &lt;NA&gt;                guitar    
+## 14 The Highwaymen         Willie  Nelson    &lt;NA&gt;                guitar    
+## 15 The Traveling Wilburys Bob     Dylan     &lt;NA&gt;                guitar    
+## 16 The Traveling Wilburys George  Harrison  The Beatles         guitar    
+## 17 The Traveling Wilburys Jeff    Lynne     Electric Light Orc~ vocals    
+## 18 The Traveling Wilburys Roy     Orbison   &lt;NA&gt;                guitar    
+## 19 The Traveling Wilburys Tom     Petty     Tom Petty and the ~ vocals</code></pre>
+</div>
+<div id="filter-multiple-tables" class="section level2">
+<h2>Filter multiple tables</h2>
+<p>Nice work! The job of reduce() is to apply a function in an iterative fashion to many datasets. As a result, reduce() works well with all of the dplyr join functions.</p>
+<p>For example, you can use reduce() to filter observations with a filtering join.</p>
+<p>INSTRUCTIONS</p>
+<p>Use reduce() to return just the rows of more_artists that appear in all three datasets.</p>
+<pre class="r"><code>list(more_artists, more_bands, supergroups) %&gt;% 
+  # Return rows of more_artists in all three datasets
+  reduce(semi_join, by = c(&quot;first&quot;, &quot;last&quot;))</code></pre>
+<pre><code>## # A tibble: 11 x 3
+##    first   last     instrument
+##    &lt;chr&gt;   &lt;chr&gt;    &lt;chr&gt;     
+##  1 David   Crosby   guitar    
+##  2 Eric    Clapton  guitar    
+##  3 George  Harrison guitar    
+##  4 Ginger  Baker    drums     
+##  5 Graham  Nash     guitar    
+##  6 Jack    Bruce    bass      
+##  7 Jack    Bruce    bass      
+##  8 Jeff    Lynne    vocals    
+##  9 Neil    Young    guitar    
+## 10 Stephen Stills   guitar    
+## 11 Tom     Petty    vocals</code></pre>
+</div>
+<div id="base-r" class="section level2">
+<h2>Base R</h2>
+<p>dplyr joins are also similar to the merge() function in base R.</p>
+<p>For example, the code in the editor uses merge() and arrange() to perform a left_join() on bands and artists.</p>
+<p>INSTRUCTIONS</p>
+<p>Alter the code to perform the join with a dplyr function. Remove arrange() if your solution does not need it.</p>
+<pre class="r"><code>#THIS:
+merge(bands, artists, by = c(&quot;first&quot;, &quot;last&quot;), all.x = TRUE) %&gt;%
+  arrange(band)</code></pre>
+<pre><code>##        first      last               band instrument
+## 1      Jimmy      Page       Led Zeppelin     Guitar
+## 2       John    Bonham       Led Zeppelin       &lt;NA&gt;
+## 3  John Paul     Jones       Led Zeppelin       &lt;NA&gt;
+## 4     Robert     Plant       Led Zeppelin       &lt;NA&gt;
+## 5     George  Harrison        The Beatles     Guitar
+## 6       John    Lennon        The Beatles     Guitar
+## 7       Paul McCartney        The Beatles       Bass
+## 8      Ringo     Starr        The Beatles      Drums
+## 9      Jimmy   Buffett  The Coral Reefers     Guitar
+## 10   Charlie     Watts The Rolling Stones       &lt;NA&gt;
+## 11     Keith  Richards The Rolling Stones     Guitar
+## 12      Mick    Jagger The Rolling Stones     Vocals</code></pre>
+<pre class="r"><code>#is equivalant to the below dplyr function... BUt the dplyr function will convert it to a tibble DF.
+
+# Alter the code to perform the join with a dplyr function
+left_join(bands, artists, by = c(&quot;first&quot;, &quot;last&quot;))</code></pre>
+<pre><code>## # A tibble: 12 x 4
+##    first     last      band               instrument
+##    &lt;chr&gt;     &lt;chr&gt;     &lt;chr&gt;              &lt;chr&gt;     
+##  1 John      Bonham    Led Zeppelin       &lt;NA&gt;      
+##  2 John Paul Jones     Led Zeppelin       &lt;NA&gt;      
+##  3 Jimmy     Page      Led Zeppelin       Guitar    
+##  4 Robert    Plant     Led Zeppelin       &lt;NA&gt;      
+##  5 George    Harrison  The Beatles        Guitar    
+##  6 John      Lennon    The Beatles        Guitar    
+##  7 Paul      McCartney The Beatles        Bass      
+##  8 Ringo     Starr     The Beatles        Drums     
+##  9 Jimmy     Buffett   The Coral Reefers  Guitar    
+## 10 Mick      Jagger    The Rolling Stones Vocals    
+## 11 Keith     Richards  The Rolling Stones Guitar    
+## 12 Charlie   Watts     The Rolling Stones &lt;NA&gt;</code></pre>
+</div>
 </div>
 <div id="chapter-5-case-study" class="section level1">
 <h1>Chapter 5: Case study</h1>
 <p>You know the ins and outs of two-table verbs with dplyr, but your knowledge is untried! Let’s cement what you’ve learned with a real world application.</p>
+<div id="universal-keys" class="section level2">
+<h2>Universal keys?</h2>
+<p>As Garrett mentioned, the Lahman database contains 26 datasets. Before starting to analyze the data, you’ll examine how the datasets are related to each other.</p>
+<p>In particular, do any variable names span all of the datasets?</p>
+<p>INSTRUCTIONS</p>
+<p>Examine lahmanNames by printing it to the console. It is a list of 26 data frames, each of which contains the variable names of one dataset in the Lahman package. Use purrr’s reduce() and a single set operation to return a data frame that contains every variable that appears in all 26 datasets (if any does).</p>
+<pre class="r"><code># Examine lahmanNames
+lahmanNames</code></pre>
+<pre><code>## $AllstarFull
+## # A tibble: 8 x 1
+##   var        
+##   &lt;chr&gt;      
+## 1 playerID   
+## 2 yearID     
+## 3 gameNum    
+## 4 gameID     
+## 5 teamID     
+## 6 lgID       
+## 7 GP         
+## 8 startingPos
+## 
+## $Appearances
+## # A tibble: 21 x 1
+##    var      
+##    &lt;chr&gt;    
+##  1 yearID   
+##  2 teamID   
+##  3 lgID     
+##  4 playerID 
+##  5 G_all    
+##  6 GS       
+##  7 G_batting
+##  8 G_defense
+##  9 G_p      
+## 10 G_c      
+## # ... with 11 more rows
+## 
+## $AwardsManagers
+## # A tibble: 6 x 1
+##   var     
+##   &lt;chr&gt;   
+## 1 playerID
+## 2 awardID 
+## 3 yearID  
+## 4 lgID    
+## 5 tie     
+## 6 notes   
+## 
+## $AwardsPlayers
+## # A tibble: 6 x 1
+##   var     
+##   &lt;chr&gt;   
+## 1 playerID
+## 2 awardID 
+## 3 yearID  
+## 4 lgID    
+## 5 tie     
+## 6 notes   
+## 
+## $AwardsShareManagers
+## # A tibble: 7 x 1
+##   var       
+##   &lt;chr&gt;     
+## 1 awardID   
+## 2 yearID    
+## 3 lgID      
+## 4 playerID  
+## 5 pointsWon 
+## 6 pointsMax 
+## 7 votesFirst
+## 
+## $AwardsSharePlayers
+## # A tibble: 7 x 1
+##   var       
+##   &lt;chr&gt;     
+## 1 awardID   
+## 2 yearID    
+## 3 lgID      
+## 4 playerID  
+## 5 pointsWon 
+## 6 pointsMax 
+## 7 votesFirst
+## 
+## $Batting
+## # A tibble: 22 x 1
+##    var     
+##    &lt;chr&gt;   
+##  1 playerID
+##  2 yearID  
+##  3 stint   
+##  4 teamID  
+##  5 lgID    
+##  6 G       
+##  7 AB      
+##  8 R       
+##  9 H       
+## 10 X2B     
+## # ... with 12 more rows
+## 
+## $battingLabels
+## # A tibble: 2 x 1
+##   var     
+##   &lt;chr&gt;   
+## 1 variable
+## 2 label   
+## 
+## $BattingPost
+## # A tibble: 22 x 1
+##    var     
+##    &lt;chr&gt;   
+##  1 yearID  
+##  2 round   
+##  3 playerID
+##  4 teamID  
+##  5 lgID    
+##  6 G       
+##  7 AB      
+##  8 R       
+##  9 H       
+## 10 X2B     
+## # ... with 12 more rows
+## 
+## $CollegePlaying
+## # A tibble: 3 x 1
+##   var     
+##   &lt;chr&gt;   
+## 1 playerID
+## 2 schoolID
+## 3 yearID  
+## 
+## $Fielding
+## # A tibble: 18 x 1
+##    var     
+##    &lt;chr&gt;   
+##  1 playerID
+##  2 yearID  
+##  3 stint   
+##  4 teamID  
+##  5 lgID    
+##  6 POS     
+##  7 G       
+##  8 GS      
+##  9 InnOuts 
+## 10 PO      
+## 11 A       
+## 12 E       
+## 13 DP      
+## 14 PB      
+## 15 WP      
+## 16 SB      
+## 17 CS      
+## 18 ZR      
+## 
+## $fieldingLabels
+## # A tibble: 2 x 1
+##   var     
+##   &lt;chr&gt;   
+## 1 variable
+## 2 label   
+## 
+## $FieldingOF
+## # A tibble: 6 x 1
+##   var     
+##   &lt;chr&gt;   
+## 1 playerID
+## 2 yearID  
+## 3 stint   
+## 4 Glf     
+## 5 Gcf     
+## 6 Grf     
+## 
+## $FieldingPost
+## # A tibble: 17 x 1
+##    var     
+##    &lt;chr&gt;   
+##  1 playerID
+##  2 yearID  
+##  3 teamID  
+##  4 lgID    
+##  5 round   
+##  6 POS     
+##  7 G       
+##  8 GS      
+##  9 InnOuts 
+## 10 PO      
+## 11 A       
+## 12 E       
+## 13 DP      
+## 14 TP      
+## 15 PB      
+## 16 SB      
+## 17 CS      
+## 
+## $HallOfFame
+## # A tibble: 9 x 1
+##   var        
+##   &lt;chr&gt;      
+## 1 playerID   
+## 2 yearID     
+## 3 votedBy    
+## 4 ballots    
+## 5 needed     
+## 6 votes      
+## 7 inducted   
+## 8 category   
+## 9 needed_note
+## 
+## $LahmanData
+## # A tibble: 5 x 1
+##   var  
+##   &lt;chr&gt;
+## 1 file 
+## 2 class
+## 3 nobs 
+## 4 nvar 
+## 5 title
+## 
+## $Managers
+## # A tibble: 10 x 1
+##    var     
+##    &lt;chr&gt;   
+##  1 playerID
+##  2 yearID  
+##  3 teamID  
+##  4 lgID    
+##  5 inseason
+##  6 G       
+##  7 W       
+##  8 L       
+##  9 rank    
+## 10 plyrMgr 
+## 
+## $ManagersHalf
+## # A tibble: 10 x 1
+##    var     
+##    &lt;chr&gt;   
+##  1 playerID
+##  2 yearID  
+##  3 teamID  
+##  4 lgID    
+##  5 inseason
+##  6 half    
+##  7 G       
+##  8 W       
+##  9 L       
+## 10 rank    
+## 
+## $Master
+## # A tibble: 26 x 1
+##    var         
+##    &lt;chr&gt;       
+##  1 playerID    
+##  2 birthYear   
+##  3 birthMonth  
+##  4 birthDay    
+##  5 birthCountry
+##  6 birthState  
+##  7 birthCity   
+##  8 deathYear   
+##  9 deathMonth  
+## 10 deathDay    
+## # ... with 16 more rows
+## 
+## $Pitching
+## # A tibble: 30 x 1
+##    var     
+##    &lt;chr&gt;   
+##  1 playerID
+##  2 yearID  
+##  3 stint   
+##  4 teamID  
+##  5 lgID    
+##  6 W       
+##  7 L       
+##  8 G       
+##  9 GS      
+## 10 CG      
+## # ... with 20 more rows
+## 
+## $pitchingLabels
+## # A tibble: 2 x 1
+##   var     
+##   &lt;chr&gt;   
+## 1 variable
+## 2 label   
+## 
+## $PitchingPost
+## # A tibble: 30 x 1
+##    var     
+##    &lt;chr&gt;   
+##  1 playerID
+##  2 yearID  
+##  3 round   
+##  4 teamID  
+##  5 lgID    
+##  6 W       
+##  7 L       
+##  8 G       
+##  9 GS      
+## 10 CG      
+## # ... with 20 more rows
+## 
+## $Salaries
+## # A tibble: 5 x 1
+##   var     
+##   &lt;chr&gt;   
+## 1 yearID  
+## 2 teamID  
+## 3 lgID    
+## 4 playerID
+## 5 salary  
+## 
+## $Schools
+## # A tibble: 5 x 1
+##   var      
+##   &lt;chr&gt;    
+## 1 schoolID 
+## 2 name_full
+## 3 city     
+## 4 state    
+## 5 country  
+## 
+## $SeriesPost
+## # A tibble: 9 x 1
+##   var         
+##   &lt;chr&gt;       
+## 1 yearID      
+## 2 round       
+## 3 teamIDwinner
+## 4 lgIDwinner  
+## 5 teamIDloser 
+## 6 lgIDloser   
+## 7 wins        
+## 8 losses      
+## 9 ties        
+## 
+## $Teams
+## # A tibble: 48 x 1
+##    var     
+##    &lt;chr&gt;   
+##  1 yearID  
+##  2 lgID    
+##  3 teamID  
+##  4 franchID
+##  5 divID   
+##  6 Rank    
+##  7 G       
+##  8 Ghome   
+##  9 W       
+## 10 L       
+## # ... with 38 more rows
+## 
+## $TeamsFranchises
+## # A tibble: 4 x 1
+##   var       
+##   &lt;chr&gt;     
+## 1 franchID  
+## 2 franchName
+## 3 active    
+## 4 NAassoc   
+## 
+## $TeamsHalf
+## # A tibble: 10 x 1
+##    var   
+##    &lt;chr&gt; 
+##  1 yearID
+##  2 lgID  
+##  3 teamID
+##  4 Half  
+##  5 divID 
+##  6 DivWin
+##  7 Rank  
+##  8 G     
+##  9 W     
+## 10 L</code></pre>
+<pre class="r"><code># Find variables in common
+reduce(lahmanNames, intersect)</code></pre>
+<pre><code>## # A tibble: 0 x 1
+## # ... with 1 variable: var &lt;chr&gt;</code></pre>
+</div>
+<div id="common-keys" class="section level2">
+<h2>Common keys</h2>
+<p>No variables span all 26 datasets, but several variables span more than one dataset. These variables provide relationships between the various tables in Lahman. Can you find them?</p>
+<p>INSTRUCTIONS</p>
+<p>Bind the data frames in lahmanNames into a single table that includes a new column called dataframe, which contains the names of the data frames. Group the result by var. Tally the number of appearances of each var. Filter the data to only variables that appear more than once. Arrange the results so that the most frequently used variables appear before less frequently used</p>
+<pre class="r"><code>lahmanNames %&gt;%  
+  # Bind the data frames in lahmanNames
+  bind_rows(.id = &quot;dataframe&quot;) %&gt;%
+  # Group the result by var
+  group_by(var) %&gt;%
+  # Tally the number of appearances
+  tally() %&gt;%
+  # Filter the data
+  filter(n &gt; 1) %&gt;% 
+  # Arrange the results
+  arrange(desc(n))</code></pre>
+<pre><code>## # A tibble: 59 x 2
+##    var          n
+##    &lt;chr&gt;    &lt;int&gt;
+##  1 yearID      21
+##  2 playerID    19
+##  3 lgID        17
+##  4 teamID      13
+##  5 G           10
+##  6 L            6
+##  7 W            6
+##  8 BB           5
+##  9 CS           5
+## 10 GS           5
+## # ... with 49 more rows</code></pre>
+</div>
+<div id="playerid" class="section level2">
+<h2>playerID</h2>
+<p>In the last exercise, you saw that playerID is one of the most widely used keys in the Lahman database. Which datasets use playerID?</p>
+<p>INSTRUCTIONS</p>
+<p>Bind the data frames in lahmanNames into a single table that includes the column dataframe, which contains the names of the data frames. Filter the results to just rows that contain playerID. Extract the dataframe variable.</p>
+<pre class="r"><code>lahmanNames %&gt;% 
+  # Bind the data frames
+  bind_rows(.id = &quot;dataframe&quot;) %&gt;%
+  # Filter the results
+  filter(var == &quot;playerID&quot;) %&gt;% 
+  # Extract the dataframe variable
+  `$`(dataframe)</code></pre>
+<pre><code>##  [1] &quot;AllstarFull&quot;         &quot;Appearances&quot;         &quot;AwardsManagers&quot;     
+##  [4] &quot;AwardsPlayers&quot;       &quot;AwardsShareManagers&quot; &quot;AwardsSharePlayers&quot; 
+##  [7] &quot;Batting&quot;             &quot;BattingPost&quot;         &quot;CollegePlaying&quot;     
+## [10] &quot;Fielding&quot;            &quot;FieldingOF&quot;          &quot;FieldingPost&quot;       
+## [13] &quot;HallOfFame&quot;          &quot;Managers&quot;            &quot;ManagersHalf&quot;       
+## [16] &quot;Master&quot;              &quot;Pitching&quot;            &quot;PitchingPost&quot;       
+## [19] &quot;Salaries&quot;</code></pre>
+</div>
+<div id="who-are-the-players" class="section level2">
+<h2>Who are the players?</h2>
+<p>Before we look at salaries, let’s begin by ensuring that we have salary information for each player in the database, or at least no systematic holes in our coverage.</p>
+<p>To do this we will need a list of every player to compare against salaries. The Master dataset contains all of the players in the database, but it may contain multiple rows for each player.</p>
+<p>How should you proceed?</p>
+<p>In the video, you saw how to use distinct() to find unique rows for all columns in a table. You can also find unique rows for specific columns using the following syntax:</p>
+<pre><code>tbl %&gt;%
+  # Find unique rows of columns a,b, and c
+  distinct(a, b, c)</code></pre>
+<p>INSTRUCTIONS</p>
+<p>Use Master to create players, a data frame that contains one row and three columns for each distinct player. The columns should be playerID, nameFirst, and nameLast, in that order.</p>
+<pre class="r"><code>players &lt;- Master %&gt;% 
+  # Return one row for each distinct player
+  distinct(playerID, nameFirst, nameLast)</code></pre>
+</div>
+<div id="missing-salaries" class="section level2">
+<h2>Missing salaries</h2>
+<p>Now that we know who the players are, let’s check our salary coverage. How many players are completely missing salary information?</p>
+<p>INSTRUCTIONS</p>
+<p>Use a join to find all of the players who do not appear in Salaries. Then use the dplyr function count() to count how many players do not appear in Salaries.</p>
+<pre class="r"><code>players %&gt;% 
+  # Find all players who do not appear in Salaries
+  anti_join(Salaries) %&gt;%
+  # Count them
+  count()</code></pre>
+<pre><code>## Joining, by = &quot;playerID&quot;</code></pre>
+<pre><code>## # A tibble: 1 x 1
+##       n
+##   &lt;int&gt;
+## 1 13958</code></pre>
+</div>
+<div id="unpaid-games" class="section level2">
+<h2>Unpaid games?</h2>
+<p>Now that we know there is a huge hole in the salary data, let’s see if we can explain it. Is it possible that these players somehow did not play (and hence did not earn a salary)?</p>
+<p>We can check with the Appearances data frame. Appearances contains information about every game played in major league baseball. That is, if a player played a game, it would show up as a row in Appearances.</p>
+<p>INSTRUCTIONS</p>
+<p>Add a join to the pipe to determine how many (if any) unsalaried players played at least one game.</p>
+<pre class="r"><code>players %&gt;% 
+  anti_join(Salaries, by = &quot;playerID&quot;) %&gt;% 
+  # How many unsalaried players appear in Appearances?
+  semi_join(Appearances) %&gt;% 
+  count()</code></pre>
+<pre><code>## Joining, by = &quot;playerID&quot;</code></pre>
+<pre><code>## # A tibble: 1 x 1
+##       n
+##   &lt;int&gt;
+## 1 13765</code></pre>
+</div>
+<div id="how-many-games" class="section level2">
+<h2>How many games?</h2>
+<p>Perhaps the unsalaried players only played one or two games, and hence did not earn a full salary. Can you determine how many games each of these unsalaried players played?</p>
+<p>INSTRUCTIONS</p>
+<p>Recalculate the list of players who do not appear in Salaries with the anti_join() function. Then left join them to Appearances. Group the data by playerID and calculate the total_games that each player played. This will be the sum() of G_all, ignoring NAs . Arrange the summarized data in descending order by total_games.</p>
+<pre class="r"><code>players %&gt;% 
+  # Find all players who do not appear in Salaries
+  anti_join(Salaries, by = &quot;playerID&quot;) %&gt;% 
+  # Join them to Appearances
+  left_join(Appearances) %&gt;% 
+  # Calculate total_games for each player
+  group_by(playerID) %&gt;%
+  summarize(total_games = sum(G_all, na.rm = TRUE)) %&gt;%
+  # Arrange in descending order by total_games
+  arrange(desc(total_games))</code></pre>
+<pre><code>## Joining, by = &quot;playerID&quot;</code></pre>
+<pre><code>## # A tibble: 13,958 x 2
+##    playerID  total_games
+##    &lt;chr&gt;           &lt;int&gt;
+##  1 yastrca01        3308
+##  2 aaronha01        3298
+##  3 cobbty01         3034
+##  4 musiast01        3026
+##  5 mayswi01         2992
+##  6 robinbr01        2896
+##  7 kalinal01        2834
+##  8 collied01        2824
+##  9 robinfr02        2808
+## 10 wagneho01        2795
+## # ... with 13,948 more rows</code></pre>
+<p>How many at-bats? Is it possible that the unsalaried players did not actually play in the games that they appeared in? One way to check would be to determine if the players had an at-bat (i.e. batted) in the games that they appeared in.</p>
+<p>INSTRUCTIONS</p>
+<p>Repeat your process in the previous exercise with Batting instead of Appearances:</p>
+<p>Find the unsalaried players. Left join Batting to the unsalaried players. Group by player (e.g. playerID). Calculate the sum of at-bats for each player as total_at_bat; this will be the sum of the AB variable in Batting, ignoring all NAs. Arrange in descending order of at-bats.</p>
+<pre class="r"><code>players %&gt;%
+  # Find unsalaried players
+  anti_join(Salaries) %&gt;% 
+  # Join Batting to the unsalaried players
+  left_join(Batting) %&gt;% 
+  # Group by player
+  group_by(playerID) %&gt;% 
+  # Sum at-bats for each player
+  summarize(total_at_bat = sum(AB, na.rm = TRUE)) %&gt;% 
+  # Arrange in descending order
+  arrange(desc(total_at_bat))</code></pre>
+<pre><code>## Joining, by = &quot;playerID&quot;
+## Joining, by = &quot;playerID&quot;</code></pre>
+<pre><code>## # A tibble: 13,958 x 2
+##    playerID  total_at_bat
+##    &lt;chr&gt;            &lt;int&gt;
+##  1 aaronha01        12364
+##  2 yastrca01        11988
+##  3 cobbty01         11434
+##  4 musiast01        10972
+##  5 mayswi01         10881
+##  6 robinbr01        10654
+##  7 wagneho01        10430
+##  8 brocklo01        10332
+##  9 ansonca01        10277
+## 10 aparilu01        10230
+## # ... with 13,948 more rows</code></pre>
+</div>
+<div id="hall-of-fame-nominations" class="section level2">
+<h2>Hall of fame nominations</h2>
+<p>As Garrett mentioned, the Hall of Fame is a collection of distinguished baseball players selected by a committee of baseball experts. As with any hall of fame, more players are nominated for membership than are actually admitted.</p>
+<p>Let’s see how many players have been nominated for the Hall of Fame.</p>
+<p>INSTRUCTIONS</p>
+<p>Create nominated, a data frame that contains the distinct players (by playerID) that appear in the HallOfFame dataset. Count the number of players in nominated with count(). Add nameFirst and nameLast values from the Master data frame to nominated. Store the result to a data frame called nominated_full.</p>
+<pre class="r"><code># Find the distinct players that appear in HallOfFame
+nominated &lt;- HallOfFame %&gt;% 
+  distinct(playerID)
+
+nominated %&gt;% 
+  # Count the number of players in nominated
+  count()</code></pre>
+<pre><code>## # A tibble: 1 x 1
+##       n
+##   &lt;int&gt;
+## 1  1260</code></pre>
+<pre class="r"><code>nominated_full &lt;- nominated %&gt;% 
+  # Join to Master
+  left_join(Master, by = &quot;playerID&quot;) %&gt;% 
+  # Return playerID, nameFirst, nameLast
+  select(playerID, nameFirst, nameLast)</code></pre>
+</div>
+<div id="hall-of-fame-inductions" class="section level2">
+<h2>Hall of fame inductions</h2>
+<p>In the previous exercise, we saw that 1,239 players were nominated for the hall of fame. Let’s now see how many players were admitted to the hall of fame to examine how selective the voting process is.</p>
+<p>INSTRUCTIONS</p>
+<p>Repeat the process you saw in the last exercise to create inducted, a data frame that contains the distinct players (by playerID) that appear in HallOfFame and have the value inducted == “Y”. Count the number of players in inducted with count(). Add nameFirst and nameLast values from the Master data frame to inducted. Store the result to a data frame called inducted_full.</p>
+<pre class="r"><code># Find distinct players in HallOfFame with inducted == &quot;Y&quot;
+inducted &lt;- HallOfFame %&gt;% 
+  filter(inducted == &quot;Y&quot;) %&gt;% 
+  distinct(playerID)
+
+inducted %&gt;% 
+  # Count the number of players in inducted
+  count()</code></pre>
+<pre><code>## # A tibble: 1 x 1
+##       n
+##   &lt;int&gt;
+## 1   317</code></pre>
+<pre class="r"><code>inducted_full &lt;- inducted %&gt;% 
+  # Join to Master
+  left_join(Master, by = &quot;playerID&quot;) %&gt;% 
+  # Return playerID, nameFirst, nameLast
+  select(playerID, nameFirst, nameLast)</code></pre>
+</div>
+<div id="awards" class="section level2">
+<h2>Awards</h2>
+<p>Now that we know who was inducted and who was nominated, let’s examine what separates the nominees who were inducted from the nominees who were not.</p>
+<p>Let’s start with a simple question: Did nominees who were inducted earn more awards than nominees who were not inducted?</p>
+<p>We can use AwardsPlayers to answer the question. It lists the playerID’s of players who won baseball awards, and it contains one row for each award awarded in major league baseball.</p>
+<p>INSTRUCTIONS</p>
+<p>tally() the number of awards in AwardsPlayers for each playerID and save the results as nAwards. Note that the resulting column containing the number of awards is called n by default. Filter nAwards to include the players in inducted and calculate the mean number of awards per player (set na.rm = TRUE). Call the mean number of awards avg_n. Filter nAwards to include the players in nominated who are not present in inducted and calculate the mean number of awards per player (set na.rm = TRUE). Again, call the mean number of awards avg_n.</p>
+<pre class="r"><code># Tally the number of awards in AwardsPlayers by playerID
+nAwards &lt;- AwardsPlayers %&gt;% 
+  group_by(playerID) %&gt;% 
+  tally()
+
+nAwards %&gt;% 
+  # Filter to just the players in inducted 
+  semi_join(inducted, by = &quot;playerID&quot;) %&gt;% 
+  # Calculate the mean number of awards per player
+  summarize(avg_n = mean(n, na.rm = TRUE))</code></pre>
+<pre><code>## # A tibble: 1 x 1
+##   avg_n
+##   &lt;dbl&gt;
+## 1  12.1</code></pre>
+<pre class="r"><code>nAwards %&gt;% 
+  # Filter to just the players in nominated 
+  semi_join(nominated, by = &quot;playerID&quot;) %&gt;% 
+  # Filter to players NOT in inducted 
+  anti_join(inducted, by = &quot;playerID&quot;) %&gt;% 
+  # Calculate the mean number of awards per player
+  summarize(avg_n = mean(n, na.rm = TRUE))</code></pre>
+<pre><code>## # A tibble: 1 x 1
+##   avg_n
+##   &lt;dbl&gt;
+## 1  4.23</code></pre>
+</div>
+<div id="salary" class="section level2">
+<h2>Salary</h2>
+<p>Salary may provide another way to differentiate inductees from non-inductees. Does the maximum salary earned by inductees tend to be greater than the maximum salary earned by nominees who were not inducted?</p>
+<p>INSTRUCTIONS</p>
+<p>Create notInducted, a dataset that contains the rows of nominated that are not in inducted using a set operation. Filter Salaries against notInducted to return only the salaries of nominees who were not inducted. Then calculate the max salary for each player in the results. Call this variable max_salary. Then in a separate summarize() call, calculate the average of the max salaries. Call this variable avg_salary. Repeat the process for the players in inducted.</p>
+<pre class="r"><code># Find the players who are in nominated, but not inducted
+notInducted &lt;- nominated %&gt;% 
+  setdiff(inducted, by = &quot;playerID&quot;)
+
+Salaries %&gt;% 
+  # Find the players who are in notInducted
+   semi_join(notInducted, by = &quot;playerID&quot;) %&gt;% 
+  # Calculate the max salary by player
+  group_by(playerID) %&gt;% 
+  summarize(max_salary = max(salary)) %&gt;% 
+  # Calculate the average of the max salaries
+  summarize(avg_salary = mean(max_salary))</code></pre>
+<pre><code>## # A tibble: 1 x 1
+##   avg_salary
+##        &lt;dbl&gt;
+## 1   5124653.</code></pre>
+<pre class="r"><code># Repeat for players who were inducted
+Salaries %&gt;% 
+  semi_join(inducted, by = &quot;playerID&quot;) %&gt;%
+  # Calculate the max salary by player
+  group_by(playerID) %&gt;% 
+  summarize(max_salary = max(salary)) %&gt;% 
+  # Calculate the average of the max salaries
+  summarize(avg_salary = mean(max_salary))</code></pre>
+<pre><code>## # A tibble: 1 x 1
+##   avg_salary
+##        &lt;dbl&gt;
+## 1   6092038.</code></pre>
+<p>Retirement One of the rules of the Hall of Fame is that players cannot be nominated until five years after they retire. Is this reflected in our data?</p>
+<p>INSTRUCTIONS</p>
+<p>Use Appearances to determine the year of the last appearance of each player nominated to the Hall of Fame. Compare it to the year(s) they were nominated to determine whether any players were nominated before they completely retired. You’ll want to:</p>
+<p>Filter Appearances against nominated to get the information in Appearances for all nominated players. Use dplyr methods to find the last year played by player. Call this last_year within your summarize() call. Left join the results to the full HallOfFame dataset. Use dplyr methods to spot unusual observations.</p>
+<pre class="r"><code>Appearances %&gt;% 
+  # Filter Appearances against nominated
+  semi_join(nominated, by = &quot;playerID&quot;) %&gt;%
+  # Find last year played by player
+  group_by(playerID) %&gt;% 
+  summarize(last_year = max(yearID)) %&gt;%
+  # Join to full HallOfFame
+  left_join(HallOfFame, by = &quot;playerID&quot;) %&gt;% 
+  # Filter for unusual observations
+  filter(yearID &lt;= last_year)</code></pre>
+<pre><code>## # A tibble: 39 x 10
+##    playerID last_year yearID votedBy ballots needed votes inducted category
+##    &lt;chr&gt;        &lt;dbl&gt;  &lt;int&gt; &lt;chr&gt;     &lt;int&gt;  &lt;int&gt; &lt;int&gt; &lt;fct&gt;    &lt;fct&gt;   
+##  1 cissebi~      1938   1937 BBWAA       201    151     1 N        Player  
+##  2 cochrmi~      1937   1936 BBWAA       226    170    80 N        Player  
+##  3 deandi01      1947   1945 BBWAA       247    186    17 N        Player  
+##  4 deandi01      1947   1946 Final ~     263    198    45 N        Player  
+##  5 deandi01      1947   1946 Nomina~     202     NA    40 N        Player  
+##  6 deandi01      1947   1947 BBWAA       161    121    88 N        Player  
+##  7 dickebi~      1946   1945 BBWAA       247    186    17 N        Player  
+##  8 dickebi~      1946   1946 Nomina~     202     NA    40 N        Player  
+##  9 dickebi~      1946   1946 Final ~     263    198    32 N        Player  
+## 10 dimagjo~      1951   1945 BBWAA       247    186     1 N        Player  
+## # ... with 29 more rows, and 1 more variable: needed_note &lt;chr&gt;</code></pre>
+</div>
 </div>
 
 

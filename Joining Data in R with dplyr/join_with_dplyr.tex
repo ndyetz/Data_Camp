@@ -112,15 +112,16 @@
 }
 
 \setlength{\droptitle}{-2em}
-  \title{Joining Data in R with dplyr}
-  \pretitle{\vspace{\droptitle}\centering\huge}
-  \posttitle{\par}
-\subtitle{Lessons from DataCamp}
-  \author{}
-  \preauthor{}\postauthor{}
-  \date{}
-  \predate{}\postdate{}
 
+  \title{Joining Data in R with dplyr}
+    \pretitle{\vspace{\droptitle}\centering\huge}
+  \posttitle{\par}
+  \subtitle{Lessons from DataCamp}
+  \author{}
+    \preauthor{}\postauthor{}
+    \date{}
+    \predate{}\postdate{}
+  
 
 \begin{document}
 \maketitle
@@ -169,6 +170,8 @@ order to run this session successfully.
 \begin{Highlighting}[]
 \KeywordTok{library}\NormalTok{(readr)}
 \KeywordTok{library}\NormalTok{(dplyr)}
+\KeywordTok{library}\NormalTok{(tibble)}
+\KeywordTok{library}\NormalTok{(purrr)}
 \end{Highlighting}
 \end{Shaded}
 
@@ -247,20 +250,20 @@ Print bands2 to the console to see the result.
 
 \begin{verbatim}
 ## # A tibble: 12 x 4
-##    first     last     band               instrument
-##    <chr>     <chr>    <chr>              <chr>     
-##  1 John      Bonham   Led Zeppelin       <NA>      
-##  2 John Paul Jones    Led Zeppelin       <NA>      
-##  3 Jimmy     Page     Led Zeppelin       Guitar    
-##  4 Robert    Plant    Led Zeppelin       <NA>      
-##  5 George    Harrison The Beatles        Guitar    
-##  6 John      Lennon   The Beatles        Guitar    
-##  7 Paul      McCartne y The Beatles      <NA>      
-##  8 Ringo     Starr    The Beatles        Drums     
-##  9 Jimmy     Buffett  The Coral Reefers  Guitar    
-## 10 Mick      Jagger   The Rolling Stones Vocals    
-## 11 Keith     Richards The Rolling Stones Guitar    
-## 12 Charlie   Watts    The Rolling Stones <NA>
+##    first     last      band               instrument
+##    <chr>     <chr>     <chr>              <chr>     
+##  1 John      Bonham    Led Zeppelin       <NA>      
+##  2 John Paul Jones     Led Zeppelin       <NA>      
+##  3 Jimmy     Page      Led Zeppelin       Guitar    
+##  4 Robert    Plant     Led Zeppelin       <NA>      
+##  5 George    Harrison  The Beatles        Guitar    
+##  6 John      Lennon    The Beatles        Guitar    
+##  7 Paul      McCartney The Beatles        Bass      
+##  8 Ringo     Starr     The Beatles        Drums     
+##  9 Jimmy     Buffett   The Coral Reefers  Guitar    
+## 10 Mick      Jagger    The Rolling Stones Vocals    
+## 11 Keith     Richards  The Rolling Stones Guitar    
+## 12 Charlie   Watts     The Rolling Stones <NA>
 \end{verbatim}
 
 \subsection{A second join}\label{a-second-join}
@@ -290,20 +293,20 @@ bands2.
 
 \begin{verbatim}
 ## # A tibble: 12 x 4
-##    first     last     band               instrument
-##    <chr>     <chr>    <chr>              <chr>     
-##  1 John      Bonham   Led Zeppelin       <NA>      
-##  2 John Paul Jones    Led Zeppelin       <NA>      
-##  3 Jimmy     Page     Led Zeppelin       Guitar    
-##  4 Robert    Plant    Led Zeppelin       <NA>      
-##  5 George    Harrison The Beatles        Guitar    
-##  6 John      Lennon   The Beatles        Guitar    
-##  7 Paul      McCartne y The Beatles      <NA>      
-##  8 Ringo     Starr    The Beatles        Drums     
-##  9 Jimmy     Buffett  The Coral Reefers  Guitar    
-## 10 Mick      Jagger   The Rolling Stones Vocals    
-## 11 Keith     Richards The Rolling Stones Guitar    
-## 12 Charlie   Watts    The Rolling Stones <NA>
+##    first     last      band               instrument
+##    <chr>     <chr>     <chr>              <chr>     
+##  1 John      Bonham    Led Zeppelin       <NA>      
+##  2 John Paul Jones     Led Zeppelin       <NA>      
+##  3 Jimmy     Page      Led Zeppelin       Guitar    
+##  4 Robert    Plant     Led Zeppelin       <NA>      
+##  5 George    Harrison  The Beatles        Guitar    
+##  6 John      Lennon    The Beatles        Guitar    
+##  7 Paul      McCartney The Beatles        Bass      
+##  8 Ringo     Starr     The Beatles        Drums     
+##  9 Jimmy     Buffett   The Coral Reefers  Guitar    
+## 10 Mick      Jagger    The Rolling Stones Vocals    
+## 11 Keith     Richards  The Rolling Stones Guitar    
+## 12 Charlie   Watts     The Rolling Stones <NA>
 \end{verbatim}
 
 \subsection{A right join}\label{a-right-join}
@@ -386,20 +389,29 @@ a single table that contains all of the available data.
 \end{Shaded}
 
 \begin{verbatim}
-## # A tibble: 21 x 4
-##    first  last      instrument band              
-##    <chr>  <chr>     <chr>      <chr>             
-##  1 Jimmy  Buffett   Guitar     The Coral Reefers 
-##  2 George Harrison  Guitar     The Beatles       
-##  3 Mick   Jagger    Vocals     The Rolling Stones
-##  4 Tom    Jones     Vocals     <NA>              
-##  5 Davy   Jones     Vocals     <NA>              
-##  6 John   Lennon    Guitar     The Beatles       
-##  7 Paul   McCartney Bass       <NA>              
-##  8 Jimmy  Page      Guitar     Led Zeppelin      
-##  9 Joe    Perry     Guitar     <NA>              
-## 10 Elvis  Presley   Vocals     <NA>              
-## # ... with 11 more rows
+## # A tibble: 20 x 4
+##    first     last      instrument band              
+##    <chr>     <chr>     <chr>      <chr>             
+##  1 Jimmy     Buffett   Guitar     The Coral Reefers 
+##  2 George    Harrison  Guitar     The Beatles       
+##  3 Mick      Jagger    Vocals     The Rolling Stones
+##  4 Tom       Jones     Vocals     <NA>              
+##  5 Davy      Jones     Vocals     <NA>              
+##  6 John      Lennon    Guitar     The Beatles       
+##  7 Paul      McCartney Bass       The Beatles       
+##  8 Jimmy     Page      Guitar     Led Zeppelin      
+##  9 Joe       Perry     Guitar     <NA>              
+## 10 Elvis     Presley   Vocals     <NA>              
+## 11 Keith     Richards  Guitar     The Rolling Stones
+## 12 Paul      Simon     Guitar     <NA>              
+## 13 Ringo     Starr     Drums      The Beatles       
+## 14 Joe       Walsh     Guitar     <NA>              
+## 15 Brian     Wilson    Vocals     <NA>              
+## 16 Nancy     Wilson    Vocals     <NA>              
+## 17 John      Bonham    <NA>       Led Zeppelin      
+## 18 John Paul Jones     <NA>       Led Zeppelin      
+## 19 Robert    Plant     <NA>       Led Zeppelin      
+## 20 Charlie   Watts     <NA>       The Rolling Stones
 \end{verbatim}
 
 \subsection{Pipes}\label{pipes}
@@ -496,11 +508,11 @@ that goal is identical to goal2.
 
 \begin{verbatim}
 ## # A tibble: 3 x 6
-##   first last      instrument band        song             album           
-##   <chr> <chr>     <chr>      <chr>       <chr>            <chr>           
-## 1 Tom   Jones     Vocals     <NA>        It's Not Unusual Along Came Jones
-## 2 John  Lennon    Guitar     The Beatles Come Together    Abbey Road      
-## 3 Paul  McCartney Bass       <NA>        Hello, Goodbye   Magical Mystery~
+##   first last      instrument band        song           album             
+##   <chr> <chr>     <chr>      <chr>       <chr>          <chr>             
+## 1 Tom   Jones     Vocals     <NA>        It's Not Unus~ Along Came Jones  
+## 2 John  Lennon    Guitar     The Beatles Come Together  Abbey Road        
+## 3 Paul  McCartney Bass       The Beatles Hello, Goodbye Magical Mystery T~
 \end{verbatim}
 
 \begin{Shaded}
@@ -547,20 +559,20 @@ in the datasets.
 \end{Shaded}
 
 \begin{verbatim}
-## # A tibble: 30 x 7
-##    first  last      instrument band               song     album      year
-##    <chr>  <chr>     <chr>      <chr>              <chr>    <chr>     <int>
-##  1 Jimmy  Buffett   Guitar     The Coral Reefers  <NA>     <NA>         NA
-##  2 George Harrison  Guitar     The Beatles        <NA>     <NA>         NA
-##  3 Mick   Jagger    Vocals     The Rolling Stones <NA>     <NA>         NA
-##  4 Tom    Jones     Vocals     <NA>               It's No~ Along Ca~    NA
-##  5 Davy   Jones     Vocals     <NA>               <NA>     <NA>         NA
-##  6 John   Lennon    Guitar     The Beatles        Come To~ Abbey Ro~  1969
-##  7 Paul   McCartney Bass       <NA>               Hello, ~ Magical ~    NA
-##  8 Jimmy  Page      Guitar     Led Zeppelin       <NA>     <NA>         NA
-##  9 Joe    Perry     Guitar     <NA>               <NA>     <NA>         NA
-## 10 Elvis  Presley   Vocals     <NA>               <NA>     <NA>         NA
-## # ... with 20 more rows
+## # A tibble: 28 x 7
+##    first  last     instrument band         song        album          year
+##    <chr>  <chr>    <chr>      <chr>        <chr>       <chr>         <int>
+##  1 Jimmy  Buffett  Guitar     The Coral R~ <NA>        <NA>             NA
+##  2 George Harrison Guitar     The Beatles  <NA>        <NA>             NA
+##  3 Mick   Jagger   Vocals     The Rolling~ <NA>        <NA>             NA
+##  4 Tom    Jones    Vocals     <NA>         It's Not U~ Along Came J~    NA
+##  5 Davy   Jones    Vocals     <NA>         <NA>        <NA>             NA
+##  6 John   Lennon   Guitar     The Beatles  Come Toget~ Abbey Road     1969
+##  7 Paul   McCartn~ Bass       The Beatles  Hello, Goo~ Magical Myst~  1967
+##  8 Jimmy  Page     Guitar     Led Zeppelin <NA>        <NA>             NA
+##  9 Joe    Perry    Guitar     <NA>         <NA>        <NA>             NA
+## 10 Elvis  Presley  Vocals     <NA>         <NA>        <NA>             NA
+## # ... with 18 more rows
 \end{verbatim}
 
 \section{Chapter 2: Filtering joins and set
@@ -672,18 +684,17 @@ have any bands info. Note: Don't forget to mention the by argument.
 \end{Shaded}
 
 \begin{verbatim}
-## # A tibble: 9 x 3
-##   first last      instrument
-##   <chr> <chr>     <chr>     
-## 1 Tom   Jones     Vocals    
-## 2 Davy  Jones     Vocals    
-## 3 Paul  McCartney Bass      
-## 4 Joe   Perry     Guitar    
-## 5 Elvis Presley   Vocals    
-## 6 Paul  Simon     Guitar    
-## 7 Joe   Walsh     Guitar    
-## 8 Brian Wilson    Vocals    
-## 9 Nancy Wilson    Vocals
+## # A tibble: 8 x 3
+##   first last    instrument
+##   <chr> <chr>   <chr>     
+## 1 Tom   Jones   Vocals    
+## 2 Davy  Jones   Vocals    
+## 3 Joe   Perry   Guitar    
+## 4 Elvis Presley Vocals    
+## 5 Paul  Simon   Guitar    
+## 6 Joe   Walsh   Guitar    
+## 7 Brian Wilson  Vocals    
+## 8 Nancy Wilson  Vocals
 \end{verbatim}
 
 \subsection{Apply another anti-join}\label{apply-another-anti-join}
@@ -916,22 +927,22 @@ along the way (i.e.~you won't be able to do this with a single pipe.)
 ## # A tibble: 17 x 1
 ##    song                                       
 ##    <chr>                                      
-##  1 Sick as a Dog                              
-##  2 Sight for Sore Eyes                        
-##  3 Toys in the Attic                          
-##  4 One Way Street (live)                      
-##  5 Lord of the Thighs                         
-##  6 Sweet Emotion (remix)                      
-##  7 Lightning Strikes                          
-##  8 Draw the Line                              
-##  9 Remember (Walking in the Sand)             
+##  1 One Way Street (live)                      
+##  2 Sweet Emotion (remix)                      
+##  3 I Ain't Got You                            
+##  4 Sick as a Dog                              
+##  5 Lightning Strikes                          
+##  6 Draw the Line                              
+##  7 Mother Popcorn/Draw the Line               
+##  8 Remember (Walking in the Sand)             
+##  9 S.O.S. (Too Bad)                           
 ## 10 Kings and Queens                           
-## 11 Train Kept A-Rollin'/Strangers in the Night
-## 12 Big Ten Inch Record                        
-## 13 Mother Popcorn/Draw the Line               
-## 14 Seasons of Winter                          
-## 15 I Ain't Got You                            
-## 16 S.O.S. (Too Bad)                           
+## 11 Sight for Sore Eyes                        
+## 12 Toys in the Attic                          
+## 13 Big Ten Inch Record                        
+## 14 Train Kept A-Rollin'/Strangers in the Night
+## 15 Lord of the Thighs                         
+## 16 Seasons of Winter                          
 ## 17 Same Old Song and Dance
 \end{verbatim}
 
@@ -1685,6 +1696,484 @@ Now that you have the basics, let's dive deep into the mechanics of
 joins. This chapter will show you how to spot common join problems, how
 to join based on multiple or mismatched keys, how to join multiple
 tables, and how to recreate dplyr's joins with SQL and base R.
+
+\subsection{Spot the key}\label{spot-the-key}
+
+R's data frames can store important information in the row.names
+attribute. This is not a tidy way to store data, but it does happen
+quite commonly. If the primary key of your dataset is stored in
+row.names, you will have trouble joining it to other datasets.
+
+For example, stage\_songs contains information about songs that appear
+in musicals. However, it stores the primary key (song name) in the
+row.names attribute. As a result, you cannot access the key with a join
+function.
+
+One way to remedy this problem is to use the function
+rownames\_to\_column() from the tibble package. rownames\_to\_column()
+returns a copy of a dataset with the row names added to the data as a
+column.
+
+INSTRUCTIONS
+
+Load the tibble package. Use rownames\_to\_column() to add the row names
+of stage\_songs to the data frame as a column named song. Left join
+stage\_writers to stage\_songs.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{# Load the tibble package}
+\KeywordTok{library}\NormalTok{(tibble)}
+
+\NormalTok{stage_songs }\OperatorTok{%>%}\StringTok{ }
+\StringTok{  }\CommentTok{# Add row names as a column named song}
+\StringTok{  }\KeywordTok{rownames_to_column}\NormalTok{(}\DataTypeTok{var =} \StringTok{"song"}\NormalTok{) }\OperatorTok{%>%}\StringTok{ }
+\StringTok{  }\CommentTok{# Left join stage_writers to stage_songs}
+\StringTok{  }\KeywordTok{left_join}\NormalTok{(stage_writers, }\DataTypeTok{by =} \StringTok{"song"}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## # A tibble: 4 x 5
+##   song  X1                     musical               year composer
+##   <chr> <chr>                  <chr>                <int> <chr>   
+## 1 1     Children Will Listen   Into the Woods        1986 <NA>    
+## 2 2     Maria                  West Side Story       1957 <NA>    
+## 3 3     Memory                 Cats                  1981 <NA>    
+## 4 4     The Music of the Night Phantom of the Opera  1986 <NA>
+\end{verbatim}
+
+\subsection{Missing keys}\label{missing-keys}
+
+Julie Andrews is a famous singer who performed in The Sound of Music,
+which is documented in the singers data frame. The two\_songs data frame
+records a couple of songs that she sang during her career.
+
+Unfortunately, when you join the datasets together, something odd
+happens. According to the result, who sings A Spoonful of Sugar? Why
+does this happen?
+
+You can avoid this outcome by removing rows that contain NAs in the keys
+before joining.
+
+INSTRUCTIONS
+
+Take a look at singers and two\_songs in the console.
+
+Examine the result of joining singers to two\_songs. Add a filter() call
+to the pipe to remove NA's from the key column of two\_songs before
+calling inner\_join().
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{# Examine the result of joining singers to two_songs}
+\NormalTok{two_songs }\OperatorTok{%>%}\StringTok{ }\KeywordTok{inner_join}\NormalTok{(singers, }\DataTypeTok{by =} \StringTok{"movie"}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## # A tibble: 2 x 3
+##   song                movie              singer               
+##   <chr>               <chr>              <chr>                
+## 1 Do-Re-Mi            The Sound of Music Julie Andrews        
+## 2 A Spoonful of Sugar <NA>               Arnold Schwarzenegger
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{# Remove NA's from key before joining}
+\NormalTok{two_songs }\OperatorTok{%>%}\StringTok{ }
+\StringTok{  }\KeywordTok{filter}\NormalTok{(}\OperatorTok{!}\KeywordTok{is.na}\NormalTok{(movie)) }\OperatorTok{%>%}\StringTok{ }
+\StringTok{  }\KeywordTok{inner_join}\NormalTok{(singers, }\DataTypeTok{by =} \StringTok{"movie"}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## # A tibble: 1 x 3
+##   song     movie              singer       
+##   <chr>    <chr>              <chr>        
+## 1 Do-Re-Mi The Sound of Music Julie Andrews
+\end{verbatim}
+
+\subsection{A subset of keys}\label{a-subset-of-keys}
+
+Often the same column name will be used by two datasets to refer to
+different things. For example, the data frame movie\_studios uses name
+to refer to the name of a movie studio. movie\_years uses name to refer
+to the name of an actor.
+
+You could join these datasets (they describe the same movies), but you
+wouldn't want to use the name column to do so!
+
+dplyr will ignore duplicate column names if you set the by argument and
+do not include the duplicated name in the argument. When you do this,
+dplyr will treat the columns in the normal fashion, but it will add .x
+and .y to the duplicated names to help you tell the columns apart.
+
+INSTRUCTIONS
+
+Left join movie\_studios to movie\_years by the movie column. What
+happens to the duplicated column names? Use rename() to rename the name
+column of movie\_years to artist, and the name column of movie\_studios
+to studio. As an example, rename(data, new\_name = old\_name) renames
+old\_name to new\_name in data.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{movie_years }\OperatorTok{%>%}\StringTok{ }
+\StringTok{  }\CommentTok{# Left join movie_studios to movie_years}
+\StringTok{  }\KeywordTok{left_join}\NormalTok{(movie_studios, }\DataTypeTok{by =} \StringTok{"movie"}\NormalTok{) }\OperatorTok{%>%}\StringTok{ }
+\StringTok{  }\CommentTok{# Rename the columns: artist and studio}
+\StringTok{  }\KeywordTok{rename}\NormalTok{(}\DataTypeTok{artist =}\NormalTok{ name.x, }\DataTypeTok{studio =}\NormalTok{ name.y)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## # A tibble: 10 x 4
+##    movie                   artist         year studio               
+##    <chr>                   <chr>         <int> <chr>                
+##  1 The Road to Morocco     Bing Crosby    1942 Paramount Pictures   
+##  2 Going My Way            Bing Crosby    1944 Paramount Pictures   
+##  3 Anchors Aweigh          Frank Sinatra  1945 Metro-Goldwyn-Mayer  
+##  4 Till the Clouds Roll By Frank Sinatra  1946 Metro-Goldwyn-Mayer  
+##  5 White Christmas         Bing Crosby    1954 Paramount Pictures   
+##  6 The Tender Trap         Frank Sinatra  1955 Metro-Goldwyn-Mayer  
+##  7 High Society            Bing Crosby    1956 Metro-Goldwyn-Mayer  
+##  8 The Joker is Wild       Frank Sinatra  1957 Paramount Pictures   
+##  9 Pal Joey                Frank Sinatra  1957 Columbia Pictures    
+## 10 Can-Can                 Frank Sinatra  1960 Twentieth-Century Fox
+\end{verbatim}
+
+\subsection{Mis-matched key names}\label{mis-matched-key-names}
+
+Just as the same name can refer to different things in different
+datasets, different names can refer to the same thing. For example,
+elvis\_movies and elvis\_songs both describe movies starring Elvis
+Presley, but each uses a different column name to describe the name of
+the movie.
+
+This type of inconsistency can be frustrating when you wish to join data
+based on the inconsistently named variable.
+
+To make the join, set by to a named vector. The names of the vector will
+refer to column names in the primary dataset (x). The values of the
+vector will correspond to the column names in the secondary dataset (y),
+e.g.
+
+\begin{verbatim}
+x %>% left_join(y, by = c("x.name1" = "y.name2"))
+\end{verbatim}
+
+dplyr will make the join and retain the names in the primary dataset.
+
+INSTRUCTIONS
+
+Identify the column in elvis\_songs that corresponds to a column in
+elvis\_movies. Left join elvis\_songs to elvis\_movies by this column.
+Use rename() to give the result the column names movie, year, and song.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{# Identify the key column}
+\NormalTok{elvis_songs}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## # A tibble: 5 x 2
+##   name                                 movie         
+##   <chr>                                <chr>         
+## 1 (You're So Square) Baby I Don't Care Jailhouse Rock
+## 2 I Can't Help Falling in Love         Blue Hawaii   
+## 3 Jailhouse Rock                       Jailhouse Rock
+## 4 Viva Las Vegas                       Viva Las Vegas
+## 5 You Don't Know Me                    Clambake
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{elvis_movies}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## # A tibble: 4 x 2
+##   name            year
+##   <chr>          <int>
+## 1 Jailhouse Rock  1957
+## 2 Blue Hawaii     1961
+## 3 Viva Las Vegas  1963
+## 4 Clambake        1967
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{elvis_movies }\OperatorTok{%>%}\StringTok{ }
+\StringTok{  }\CommentTok{# Left join elvis_songs to elvis_movies by this column}
+\StringTok{  }\KeywordTok{left_join}\NormalTok{(elvis_songs, }\DataTypeTok{by =} \KeywordTok{c}\NormalTok{(}\StringTok{"name"}\NormalTok{ =}\StringTok{ "movie"}\NormalTok{)) }\OperatorTok{%>%}\StringTok{ }
+\StringTok{  }\CommentTok{# Rename columns}
+\StringTok{  }\KeywordTok{rename}\NormalTok{(}\DataTypeTok{movie =}\NormalTok{ name, }\DataTypeTok{song =}\NormalTok{ name.y)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## # A tibble: 5 x 3
+##   movie           year song                                
+##   <chr>          <int> <chr>                               
+## 1 Jailhouse Rock  1957 (You're So Square) Baby I Don't Care
+## 2 Jailhouse Rock  1957 Jailhouse Rock                      
+## 3 Blue Hawaii     1961 I Can't Help Falling in Love        
+## 4 Viva Las Vegas  1963 Viva Las Vegas                      
+## 5 Clambake        1967 You Don't Know Me
+\end{verbatim}
+
+\subsection{More mismatched names}\label{more-mismatched-names}
+
+Now, you'll practice what you learned in the last exercise.
+
+movie\_years and movie\_directors both describe movies that feature
+Frank Sinatra and Bing Crosby. However, each data frame uses different
+column names to refer to the key variables that connect the datasets.
+
+Can you join the data?
+
+INSTRUCTIONS
+
+Identify the key columns that connect movie\_directors to movie\_years.
+Left join movie\_directors to movie\_years. Use select() to arrange the
+columns in the following order with the following names: year, movie,
+artist, director, studio.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{# Identify the key columns}
+\NormalTok{movie_directors}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## # A tibble: 10 x 3
+##    name                    director        studio               
+##    <chr>                   <chr>           <chr>                
+##  1 Anchors Aweigh          George Sidney   Metro-Goldwyn-Mayer  
+##  2 Can-Can                 Walter Lang     Twentieth-Century Fox
+##  3 Going My Way            Leo McCarey     Paramount Pictures   
+##  4 High Society            Charles Walters Metro-Goldwyn-Mayer  
+##  5 Pal Joey                George Sidney   Columbia Pictures    
+##  6 The Joker is Wild       Charles Vidor   Paramount Pictures   
+##  7 The Road to Morocco     David Butler    Paramount Pictures   
+##  8 The Tender Trap         Charles Walters Metro-Goldwyn-Mayer  
+##  9 Till the Clouds Roll By Richard Whorf   Metro-Goldwyn-Mayer  
+## 10 White Christmas         Michael Curtiz  Paramount Pictures
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{movie_years}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## # A tibble: 10 x 3
+##    movie                   name           year
+##    <chr>                   <chr>         <int>
+##  1 The Road to Morocco     Bing Crosby    1942
+##  2 Going My Way            Bing Crosby    1944
+##  3 Anchors Aweigh          Frank Sinatra  1945
+##  4 Till the Clouds Roll By Frank Sinatra  1946
+##  5 White Christmas         Bing Crosby    1954
+##  6 The Tender Trap         Frank Sinatra  1955
+##  7 High Society            Bing Crosby    1956
+##  8 The Joker is Wild       Frank Sinatra  1957
+##  9 Pal Joey                Frank Sinatra  1957
+## 10 Can-Can                 Frank Sinatra  1960
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{movie_years }\OperatorTok{%>%}\StringTok{ }
+\StringTok{  }\CommentTok{# Left join movie_directors to movie_years}
+\StringTok{  }\KeywordTok{left_join}\NormalTok{(movie_directors, }\DataTypeTok{by =} \KeywordTok{c}\NormalTok{(}\StringTok{"movie"}\NormalTok{ =}\StringTok{ "name"}\NormalTok{)) }\OperatorTok{%>%}\StringTok{ }
+\StringTok{  }\CommentTok{# Arrange the columns using select()}
+\StringTok{  }\KeywordTok{select}\NormalTok{(year, movie, }\DataTypeTok{artist =} \StringTok{"name"}\NormalTok{, director, studio)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## # A tibble: 10 x 5
+##     year movie                artist       director      studio           
+##    <int> <chr>                <chr>        <chr>         <chr>            
+##  1  1942 The Road to Morocco  Bing Crosby  David Butler  Paramount Pictur~
+##  2  1944 Going My Way         Bing Crosby  Leo McCarey   Paramount Pictur~
+##  3  1945 Anchors Aweigh       Frank Sinat~ George Sidney Metro-Goldwyn-Ma~
+##  4  1946 Till the Clouds Rol~ Frank Sinat~ Richard Whorf Metro-Goldwyn-Ma~
+##  5  1954 White Christmas      Bing Crosby  Michael Curt~ Paramount Pictur~
+##  6  1955 The Tender Trap      Frank Sinat~ Charles Walt~ Metro-Goldwyn-Ma~
+##  7  1956 High Society         Bing Crosby  Charles Walt~ Metro-Goldwyn-Ma~
+##  8  1957 The Joker is Wild    Frank Sinat~ Charles Vidor Paramount Pictur~
+##  9  1957 Pal Joey             Frank Sinat~ George Sidney Columbia Pictures
+## 10  1960 Can-Can              Frank Sinat~ Walter Lang   Twentieth-Centur~
+\end{verbatim}
+
+\subsection{Join multiple tables}\label{join-multiple-tables}
+
+purrr's reduce() function is very useful for joining together multiple
+datasets. Let's practice using it with three new datasets.
+
+supergroups lists the members of several ``supergroup'' bands, which are
+bands made from the members of other famous bands. more\_bands lists the
+original band membership of many musicians, including those in
+supergroups. And more\_artists lists the instruments that various
+artists played.
+
+Can you join these datasets into a single, coherent dataset?
+
+INSTRUCTIONS
+
+Load the purrr library. Place supergroups, more\_bands, and
+more\_artists into a list, in that order. Use reduce() to join together
+supergroups, more\_bands, and more\_artists into a dataset that contains
+all available information about each artist in supergroups (and no
+others).
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{# Load the purrr library}
+\KeywordTok{library}\NormalTok{(purrr)}
+
+\CommentTok{# Place supergroups, more_bands, and more_artists into a list}
+\KeywordTok{list}\NormalTok{(supergroups, more_bands, more_artists) }\OperatorTok{%>%}\StringTok{ }
+\StringTok{  }\CommentTok{# Use reduce to join together the contents of the list}
+\StringTok{  }\KeywordTok{reduce}\NormalTok{(left_join, }\DataTypeTok{by =} \KeywordTok{c}\NormalTok{(}\StringTok{"first"}\NormalTok{, }\StringTok{"last"}\NormalTok{))}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## # A tibble: 19 x 5
+##    supergroup             first   last      band                instrument
+##    <chr>                  <chr>   <chr>     <chr>               <chr>     
+##  1 Cream                  Ginger  Baker     Graham Bond Organi~ drums     
+##  2 Cream                  Jack    Bruce     Graham Bond Organi~ bass      
+##  3 Cream                  Jack    Bruce     Graham Bond Organi~ bass      
+##  4 Cream                  Jack    Bruce     Manfred Mann        bass      
+##  5 Cream                  Jack    Bruce     Manfred Mann        bass      
+##  6 Cream                  Eric    Clapton   The Yardbirds       guitar    
+##  7 Crosby, Stills, Nash,~ David   Crosby    The Byrds           guitar    
+##  8 Crosby, Stills, Nash,~ Graham  Nash      The Hollies         guitar    
+##  9 Crosby, Stills, Nash,~ Stephen Stills    Buffalo Springfield guitar    
+## 10 Crosby, Stills, Nash,~ Neil    Young     Buffalo Springfield guitar    
+## 11 The Highwaymen         Johnny  Cash      <NA>                guitar    
+## 12 The Highwaymen         Waylon  Jennings  <NA>                guitar    
+## 13 The Highwaymen         Kris    Kristoff~ <NA>                guitar    
+## 14 The Highwaymen         Willie  Nelson    <NA>                guitar    
+## 15 The Traveling Wilburys Bob     Dylan     <NA>                guitar    
+## 16 The Traveling Wilburys George  Harrison  The Beatles         guitar    
+## 17 The Traveling Wilburys Jeff    Lynne     Electric Light Orc~ vocals    
+## 18 The Traveling Wilburys Roy     Orbison   <NA>                guitar    
+## 19 The Traveling Wilburys Tom     Petty     Tom Petty and the ~ vocals
+\end{verbatim}
+
+\subsection{Filter multiple tables}\label{filter-multiple-tables}
+
+Nice work! The job of reduce() is to apply a function in an iterative
+fashion to many datasets. As a result, reduce() works well with all of
+the dplyr join functions.
+
+For example, you can use reduce() to filter observations with a
+filtering join.
+
+INSTRUCTIONS
+
+Use reduce() to return just the rows of more\_artists that appear in all
+three datasets.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\KeywordTok{list}\NormalTok{(more_artists, more_bands, supergroups) }\OperatorTok{%>%}\StringTok{ }
+\StringTok{  }\CommentTok{# Return rows of more_artists in all three datasets}
+\StringTok{  }\KeywordTok{reduce}\NormalTok{(semi_join, }\DataTypeTok{by =} \KeywordTok{c}\NormalTok{(}\StringTok{"first"}\NormalTok{, }\StringTok{"last"}\NormalTok{))}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## # A tibble: 11 x 3
+##    first   last     instrument
+##    <chr>   <chr>    <chr>     
+##  1 David   Crosby   guitar    
+##  2 Eric    Clapton  guitar    
+##  3 George  Harrison guitar    
+##  4 Ginger  Baker    drums     
+##  5 Graham  Nash     guitar    
+##  6 Jack    Bruce    bass      
+##  7 Jack    Bruce    bass      
+##  8 Jeff    Lynne    vocals    
+##  9 Neil    Young    guitar    
+## 10 Stephen Stills   guitar    
+## 11 Tom     Petty    vocals
+\end{verbatim}
+
+\subsection{Base R}\label{base-r}
+
+dplyr joins are also similar to the merge() function in base R.
+
+For example, the code in the editor uses merge() and arrange() to
+perform a left\_join() on bands and artists.
+
+INSTRUCTIONS
+
+Alter the code to perform the join with a dplyr function. Remove
+arrange() if your solution does not need it.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{#THIS:}
+\KeywordTok{merge}\NormalTok{(bands, artists, }\DataTypeTok{by =} \KeywordTok{c}\NormalTok{(}\StringTok{"first"}\NormalTok{, }\StringTok{"last"}\NormalTok{), }\DataTypeTok{all.x =} \OtherTok{TRUE}\NormalTok{) }\OperatorTok{%>%}
+\StringTok{  }\KeywordTok{arrange}\NormalTok{(band)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+##        first      last               band instrument
+## 1      Jimmy      Page       Led Zeppelin     Guitar
+## 2       John    Bonham       Led Zeppelin       <NA>
+## 3  John Paul     Jones       Led Zeppelin       <NA>
+## 4     Robert     Plant       Led Zeppelin       <NA>
+## 5     George  Harrison        The Beatles     Guitar
+## 6       John    Lennon        The Beatles     Guitar
+## 7       Paul McCartney        The Beatles       Bass
+## 8      Ringo     Starr        The Beatles      Drums
+## 9      Jimmy   Buffett  The Coral Reefers     Guitar
+## 10   Charlie     Watts The Rolling Stones       <NA>
+## 11     Keith  Richards The Rolling Stones     Guitar
+## 12      Mick    Jagger The Rolling Stones     Vocals
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{#is equivalant to the below dplyr function... BUt the dplyr function will convert it to a tibble DF.}
+
+\CommentTok{# Alter the code to perform the join with a dplyr function}
+\KeywordTok{left_join}\NormalTok{(bands, artists, }\DataTypeTok{by =} \KeywordTok{c}\NormalTok{(}\StringTok{"first"}\NormalTok{, }\StringTok{"last"}\NormalTok{))}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## # A tibble: 12 x 4
+##    first     last      band               instrument
+##    <chr>     <chr>     <chr>              <chr>     
+##  1 John      Bonham    Led Zeppelin       <NA>      
+##  2 John Paul Jones     Led Zeppelin       <NA>      
+##  3 Jimmy     Page      Led Zeppelin       Guitar    
+##  4 Robert    Plant     Led Zeppelin       <NA>      
+##  5 George    Harrison  The Beatles        Guitar    
+##  6 John      Lennon    The Beatles        Guitar    
+##  7 Paul      McCartney The Beatles        Bass      
+##  8 Ringo     Starr     The Beatles        Drums     
+##  9 Jimmy     Buffett   The Coral Reefers  Guitar    
+## 10 Mick      Jagger    The Rolling Stones Vocals    
+## 11 Keith     Richards  The Rolling Stones Guitar    
+## 12 Charlie   Watts     The Rolling Stones <NA>
+\end{verbatim}
 
 \section{Chapter 5: Case study}\label{chapter-5-case-study}
 

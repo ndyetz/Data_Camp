@@ -2,10 +2,10 @@
 title: "Joining Data in R with dplyr"
 subtitle: Lessons from DataCamp
 output:
-  html_document:
+  html_notebook:
     toc: yes
     toc_float: true
-  html_notebook:
+  html_document:
     toc: yes
     toc_float: true
   pdf_document:
@@ -32,7 +32,9 @@ Below are the install.packages and libraries you will need to have in order to r
 ```{r, message = FALSE}
 library(readr)
 library(dplyr)
-
+library(tibble)
+library(purrr)
+library(Lahman) #Baseball datasets
 ```
 
 ##Required data for this session
@@ -692,9 +694,545 @@ seventies %>%
 Now that you have the basics, let's dive deep into the mechanics of joins. This chapter will show you how to spot common join problems, how to join based on multiple or mismatched keys, how to join multiple tables, and how to recreate dplyr's joins with SQL and base R.
 
 
+##Spot the key
+R's data frames can store important information in the row.names attribute. This is not a tidy way to store data, but it does happen quite commonly. If the primary key of your dataset is stored in row.names, you will have trouble joining it to other datasets.
+
+For example, stage_songs contains information about songs that appear in musicals. However, it stores the primary key (song name) in the row.names attribute. As a result, you cannot access the key with a join function.
+
+One way to remedy this problem is to use the function rownames_to_column() from the tibble package. rownames_to_column() returns a copy of a dataset with the row names added to the data as a column.
+
+INSTRUCTIONS
+
+Load the tibble package.
+Use rownames_to_column() to add the row names of stage_songs to the data frame as a column named song.
+Left join stage_writers to stage_songs.
+
+
+
+```{r}
+# Load the tibble package
+library(tibble)
+
+stage_songs %>% 
+  # Add row names as a column named song
+  rownames_to_column(var = "song") %>% 
+  # Left join stage_writers to stage_songs
+  left_join(stage_writers, by = "song")
+```
+
+
+##Missing keys
+Julie Andrews is a famous singer who performed in The Sound of Music, which is documented in the singers data frame. The two_songs data frame records a couple of songs that she sang during her career.
+
+Unfortunately, when you join the datasets together, something odd happens. According to the result, who sings A Spoonful of Sugar? Why does this happen?
+
+You can avoid this outcome by removing rows that contain NAs in the keys before joining.
+
+INSTRUCTIONS
+
+Take a look at singers and two_songs in the console.
+
+Examine the result of joining singers to two_songs.
+Add a filter() call to the pipe to remove NA's from the key column of two_songs before calling inner_join().
+
+
+
+```{r}
+# Examine the result of joining singers to two_songs
+two_songs %>% inner_join(singers, by = "movie")
+
+# Remove NA's from key before joining
+two_songs %>% 
+  filter(!is.na(movie)) %>% 
+  inner_join(singers, by = "movie")
+```
+
+
+
+##A subset of keys
+Often the same column name will be used by two datasets to refer to different things. For example, the data frame movie_studios uses name to refer to the name of a movie studio. movie_years uses name to refer to the name of an actor.
+
+You could join these datasets (they describe the same movies), but you wouldn't want to use the name column to do so!
+
+dplyr will ignore duplicate column names if you set the by argument and do not include the duplicated name in the argument. When you do this, dplyr will treat the columns in the normal fashion, but it will add .x and .y to the duplicated names to help you tell the columns apart.
+
+INSTRUCTIONS
+
+Left join movie_studios to movie_years by the movie column. What happens to the duplicated column names?
+Use rename() to rename the name column of movie_years to artist, and the name column of movie_studios to studio. As an example, rename(data, new_name = old_name) renames old_name to new_name in data.
+
+```{r}
+movie_years %>% 
+  # Left join movie_studios to movie_years
+  left_join(movie_studios, by = "movie") %>% 
+  # Rename the columns: artist and studio
+  rename(artist = name.x, studio = name.y)
+```
+
+##Mis-matched key names
+Just as the same name can refer to different things in different datasets, different names can refer to the same thing. For example, elvis_movies and elvis_songs both describe movies starring Elvis Presley, but each uses a different column name to describe the name of the movie.
+
+This type of inconsistency can be frustrating when you wish to join data based on the inconsistently named variable.
+
+To make the join, set by to a named vector. The names of the vector will refer to column names in the primary dataset (x). The values of the vector will correspond to the column names in the secondary dataset (y), e.g.
+
+```
+x %>% left_join(y, by = c("x.name1" = "y.name2"))
+```
+
+dplyr will make the join and retain the names in the primary dataset.
+
+INSTRUCTIONS
+
+Identify the column in elvis_songs that corresponds to a column in elvis_movies.
+Left join elvis_songs to elvis_movies by this column.
+Use rename() to give the result the column names movie, year, and song.
+
+```{r}
+# Identify the key column
+elvis_songs
+elvis_movies
+
+elvis_movies %>% 
+  # Left join elvis_songs to elvis_movies by this column
+  left_join(elvis_songs, by = c("name" = "movie")) %>% 
+  # Rename columns
+  rename(movie = name, song = name.y)
+```
+
+
+##More mismatched names
+
+Now, you'll practice what you learned in the last exercise.
+
+movie_years and movie_directors both describe movies that feature Frank Sinatra and Bing Crosby. However, each data frame uses different column names to refer to the key variables that connect the datasets.
+
+Can you join the data?
+
+INSTRUCTIONS
+
+Identify the key columns that connect movie_directors to movie_years.
+Left join movie_directors to movie_years.
+Use select() to arrange the columns in the following order with the following names: year, movie, artist, director, studio.
+
+
+```{r}
+# Identify the key columns
+movie_directors
+movie_years
+
+movie_years %>% 
+  # Left join movie_directors to movie_years
+  left_join(movie_directors, by = c("movie" = "name")) %>% 
+  # Arrange the columns using select()
+  select(year, movie, artist = "name", director, studio)
+```
+
+
+##Join multiple tables
+
+purrr's reduce() function is very useful for joining together multiple datasets. Let's practice using it with three new datasets.
+
+supergroups lists the members of several "supergroup" bands, which are bands made from the members of other famous bands. more_bands lists the original band membership of many musicians, including those in supergroups. And more_artists lists the instruments that various artists played.
+
+Can you join these datasets into a single, coherent dataset?
+
+INSTRUCTIONS
+
+Load the purrr library.
+Place supergroups, more_bands, and more_artists into a list, in that order.
+Use reduce() to join together supergroups, more_bands, and more_artists into a dataset that contains all available information about each artist in supergroups (and no others).
+
+```{r}
+# Load the purrr library
+library(purrr)
+
+# Place supergroups, more_bands, and more_artists into a list
+list(supergroups, more_bands, more_artists) %>% 
+  # Use reduce to join together the contents of the list
+  reduce(left_join, by = c("first", "last"))
+```
+
+
+
+##Filter multiple tables
+Nice work! The job of reduce() is to apply a function in an iterative fashion to many datasets. As a result, reduce() works well with all of the dplyr join functions.
+
+For example, you can use reduce() to filter observations with a filtering join.
+
+INSTRUCTIONS
+
+Use reduce() to return just the rows of more_artists that appear in all three datasets.
+
+
+```{r}
+list(more_artists, more_bands, supergroups) %>% 
+  # Return rows of more_artists in all three datasets
+  reduce(semi_join, by = c("first", "last"))
+```
+
+
+##Base R
+dplyr joins are also similar to the merge() function in base R.
+
+For example, the code in the editor uses merge() and arrange() to perform a left_join() on bands and artists.
+
+INSTRUCTIONS
+
+Alter the code to perform the join with a dplyr function.
+Remove arrange() if your solution does not need it.
+
+```{r}
+
+#THIS:
+merge(bands, artists, by = c("first", "last"), all.x = TRUE) %>%
+  arrange(band)
+
+#is equivalant to the below dplyr function... BUt the dplyr function will convert it to a tibble DF.
+
+# Alter the code to perform the join with a dplyr function
+left_join(bands, artists, by = c("first", "last"))
+```
+
+
+
 #Chapter 5: Case study
 
 You know the ins and outs of two-table verbs with dplyr, but your knowledge is untried! Let's cement what you've learned with a real world application.
+
+##Universal keys?
+As Garrett mentioned, the Lahman database contains 26 datasets. Before starting to analyze the data, you'll examine how the datasets are related to each other.
+
+In particular, do any variable names span all of the datasets?
+
+INSTRUCTIONS
+
+Examine lahmanNames by printing it to the console. It is a list of 26 data frames, each of which contains the variable names of one dataset in the Lahman package.
+Use purrr's reduce() and a single set operation to return a data frame that contains every variable that appears in all 26 datasets (if any does).
+
+```{r}
+# Examine lahmanNames
+lahmanNames
+
+# Find variables in common
+reduce(lahmanNames, intersect)
+```
+
+
+##Common keys
+No variables span all 26 datasets, but several variables span more than one dataset. These variables provide relationships between the various tables in Lahman. Can you find them?
+
+INSTRUCTIONS
+
+Bind the data frames in lahmanNames into a single table that includes a new column called dataframe, which contains the names of the data frames.
+Group the result by var.
+Tally the number of appearances of each var.
+Filter the data to only variables that appear more than once.
+Arrange the results so that the most frequently used variables appear before less frequently used 
+
+```{r}
+lahmanNames %>%  
+  # Bind the data frames in lahmanNames
+  bind_rows(.id = "dataframe") %>%
+  # Group the result by var
+  group_by(var) %>%
+  # Tally the number of appearances
+  tally() %>%
+  # Filter the data
+  filter(n > 1) %>% 
+  # Arrange the results
+  arrange(desc(n))
+```
+
+
+
+##playerID
+
+In the last exercise, you saw that playerID is one of the most widely used keys in the Lahman database. Which datasets use playerID?
+
+INSTRUCTIONS
+
+Bind the data frames in lahmanNames into a single table that includes the column dataframe, which contains the names of the data frames.
+Filter the results to just rows that contain playerID.
+Extract the dataframe variable.
+
+
+```{r}
+lahmanNames %>% 
+  # Bind the data frames
+  bind_rows(.id = "dataframe") %>%
+  # Filter the results
+  filter(var == "playerID") %>% 
+  # Extract the dataframe variable
+  `$`(dataframe)
+```
+
+
+
+##Who are the players?
+Before we look at salaries, let's begin by ensuring that we have salary information for each player in the database, or at least no systematic holes in our coverage.
+
+To do this we will need a list of every player to compare against salaries. The Master dataset contains all of the players in the database, but it may contain multiple rows for each player.
+
+How should you proceed?
+
+In the video, you saw how to use distinct() to find unique rows for all columns in a table. You can also find unique rows for specific columns using the following syntax:
+
+```
+tbl %>%
+  # Find unique rows of columns a,b, and c
+  distinct(a, b, c)
+```
+  
+INSTRUCTIONS
+
+Use Master to create players, a data frame that contains one row and three columns for each distinct player. The columns should be playerID, nameFirst, and nameLast, in that order.
+
+```{r}
+players <- Master %>% 
+  # Return one row for each distinct player
+  distinct(playerID, nameFirst, nameLast)
+```
+
+
+##Missing salaries
+Now that we know who the players are, let's check our salary coverage. How many players are completely missing salary information?
+
+INSTRUCTIONS
+
+Use a join to find all of the players who do not appear in Salaries.
+Then use the dplyr function count() to count how many players do not appear in Salaries.
+
+```{r}
+players %>% 
+  # Find all players who do not appear in Salaries
+  anti_join(Salaries) %>%
+  # Count them
+  count()
+```
+
+
+##Unpaid games?
+Now that we know there is a huge hole in the salary data, let's see if we can explain it. Is it possible that these players somehow did not play (and hence did not earn a salary)?
+
+We can check with the Appearances data frame. Appearances contains information about every game played in major league baseball. That is, if a player played a game, it would show up as a row in Appearances.
+
+INSTRUCTIONS
+
+Add a join to the pipe to determine how many (if any) unsalaried players played at least one game.
+
+```{r}
+players %>% 
+  anti_join(Salaries, by = "playerID") %>% 
+  # How many unsalaried players appear in Appearances?
+  semi_join(Appearances) %>% 
+  count()
+```
+
+
+##How many games?
+Perhaps the unsalaried players only played one or two games, and hence did not earn a full salary. Can you determine how many games each of these unsalaried players played?
+
+INSTRUCTIONS
+
+Recalculate the list of players who do not appear in Salaries with the anti_join() function.
+Then left join them to Appearances.
+Group the data by playerID and calculate the total_games that each player played. This will be the sum() of G_all, ignoring NAs .
+Arrange the summarized data in descending order by total_games.
+```{r}
+players %>% 
+  # Find all players who do not appear in Salaries
+  anti_join(Salaries, by = "playerID") %>% 
+  # Join them to Appearances
+  left_join(Appearances) %>% 
+  # Calculate total_games for each player
+  group_by(playerID) %>%
+  summarize(total_games = sum(G_all, na.rm = TRUE)) %>%
+  # Arrange in descending order by total_games
+  arrange(desc(total_games))
+```
+
+
+
+How many at-bats?
+Is it possible that the unsalaried players did not actually play in the games that they appeared in? One way to check would be to determine if the players had an at-bat (i.e. batted) in the games that they appeared in.
+
+INSTRUCTIONS
+
+Repeat your process in the previous exercise with Batting instead of Appearances:
+
+Find the unsalaried players.
+Left join Batting to the unsalaried players.
+Group by player (e.g. playerID).
+Calculate the sum of at-bats for each player as total_at_bat; this will be the sum of the AB variable in Batting, ignoring all NAs.
+Arrange in descending order of at-bats.
+
+
+```{r}
+players %>%
+  # Find unsalaried players
+  anti_join(Salaries) %>% 
+  # Join Batting to the unsalaried players
+  left_join(Batting) %>% 
+  # Group by player
+  group_by(playerID) %>% 
+  # Sum at-bats for each player
+  summarize(total_at_bat = sum(AB, na.rm = TRUE)) %>% 
+  # Arrange in descending order
+  arrange(desc(total_at_bat))
+```
+
+
+
+##Hall of fame nominations
+
+As Garrett mentioned, the Hall of Fame is a collection of distinguished baseball players selected by a committee of baseball experts. As with any hall of fame, more players are nominated for membership than are actually admitted.
+
+Let's see how many players have been nominated for the Hall of Fame.
+
+INSTRUCTIONS
+
+Create nominated, a data frame that contains the distinct players (by playerID) that appear in the HallOfFame dataset.
+Count the number of players in nominated with count().
+Add nameFirst and nameLast values from the Master data frame to nominated. Store the result to a data frame called nominated_full.
+
+```{r}
+# Find the distinct players that appear in HallOfFame
+nominated <- HallOfFame %>% 
+  distinct(playerID)
+
+nominated %>% 
+  # Count the number of players in nominated
+  count()
+
+nominated_full <- nominated %>% 
+  # Join to Master
+  left_join(Master, by = "playerID") %>% 
+  # Return playerID, nameFirst, nameLast
+  select(playerID, nameFirst, nameLast)
+```
+
+
+##Hall of fame inductions
+In the previous exercise, we saw that 1,239 players were nominated for the hall of fame. Let's now see how many players were admitted to the hall of fame to examine how selective the voting process is.
+
+INSTRUCTIONS
+
+Repeat the process you saw in the last exercise to create inducted, a data frame that contains the distinct players (by playerID) that appear in HallOfFame and have the value inducted == "Y".
+Count the number of players in inducted with count().
+Add nameFirst and nameLast values from the Master data frame to inducted. Store the result to a data frame called inducted_full.
+
+```{r}
+# Find distinct players in HallOfFame with inducted == "Y"
+inducted <- HallOfFame %>% 
+  filter(inducted == "Y") %>% 
+  distinct(playerID)
+
+inducted %>% 
+  # Count the number of players in inducted
+  count()
+
+inducted_full <- inducted %>% 
+  # Join to Master
+  left_join(Master, by = "playerID") %>% 
+  # Return playerID, nameFirst, nameLast
+  select(playerID, nameFirst, nameLast)
+```
+
+##Awards
+Now that we know who was inducted and who was nominated, let's examine what separates the nominees who were inducted from the nominees who were not.
+
+Let's start with a simple question: Did nominees who were inducted earn more awards than nominees who were not inducted?
+
+We can use AwardsPlayers to answer the question. It lists the playerID's of players who won baseball awards, and it contains one row for each award awarded in major league baseball.
+
+INSTRUCTIONS
+
+tally() the number of awards in AwardsPlayers for each playerID and save the results as nAwards. Note that the resulting column containing the number of awards is called n by default.
+Filter nAwards to include the players in inducted and calculate the mean number of awards per player (set na.rm = TRUE). Call the mean number of awards avg_n.
+Filter nAwards to include the players in nominated who are not present in inducted and calculate the mean number of awards per player (set na.rm = TRUE). Again, call the mean number of awards avg_n.
+
+```{r}
+# Tally the number of awards in AwardsPlayers by playerID
+nAwards <- AwardsPlayers %>% 
+  group_by(playerID) %>% 
+  tally()
+
+nAwards %>% 
+  # Filter to just the players in inducted 
+  semi_join(inducted, by = "playerID") %>% 
+  # Calculate the mean number of awards per player
+  summarize(avg_n = mean(n, na.rm = TRUE))
+
+nAwards %>% 
+  # Filter to just the players in nominated 
+  semi_join(nominated, by = "playerID") %>% 
+  # Filter to players NOT in inducted 
+  anti_join(inducted, by = "playerID") %>% 
+  # Calculate the mean number of awards per player
+  summarize(avg_n = mean(n, na.rm = TRUE))
+```
+
+
+##Salary
+Salary may provide another way to differentiate inductees from non-inductees. Does the maximum salary earned by inductees tend to be greater than the maximum salary earned by nominees who were not inducted?
+
+INSTRUCTIONS
+
+Create notInducted, a dataset that contains the rows of nominated that are not in inducted using a set operation.
+Filter Salaries against notInducted to return only the salaries of nominees who were not inducted.
+Then calculate the max salary for each player in the results. Call this variable max_salary.
+Then in a separate summarize() call, calculate the average of the max salaries. Call this variable avg_salary.
+Repeat the process for the players in inducted.
+
+```{r}
+# Find the players who are in nominated, but not inducted
+notInducted <- nominated %>% 
+  setdiff(inducted, by = "playerID")
+
+Salaries %>% 
+  # Find the players who are in notInducted
+   semi_join(notInducted, by = "playerID") %>% 
+  # Calculate the max salary by player
+  group_by(playerID) %>% 
+  summarize(max_salary = max(salary)) %>% 
+  # Calculate the average of the max salaries
+  summarize(avg_salary = mean(max_salary))
+
+# Repeat for players who were inducted
+Salaries %>% 
+  semi_join(inducted, by = "playerID") %>%
+  # Calculate the max salary by player
+  group_by(playerID) %>% 
+  summarize(max_salary = max(salary)) %>% 
+  # Calculate the average of the max salaries
+  summarize(avg_salary = mean(max_salary))
+```
+
+Retirement
+One of the rules of the Hall of Fame is that players cannot be nominated until five years after they retire. Is this reflected in our data?
+
+INSTRUCTIONS
+
+Use Appearances to determine the year of the last appearance of each player nominated to the Hall of Fame. Compare it to the year(s) they were nominated to determine whether any players were nominated before they completely retired. You'll want to:
+
+Filter Appearances against nominated to get the information in Appearances for all nominated players.
+Use dplyr methods to find the last year played by player. Call this last_year within your summarize() call.
+Left join the results to the full HallOfFame dataset.
+Use dplyr methods to spot unusual observations.
+
+```{r}
+Appearances %>% 
+  # Filter Appearances against nominated
+  semi_join(nominated, by = "playerID") %>%
+  # Find last year played by player
+  group_by(playerID) %>% 
+  summarize(last_year = max(yearID)) %>%
+  # Join to full HallOfFame
+  left_join(HallOfFame, by = "playerID") %>% 
+  # Filter for unusual observations
+  filter(yearID <= last_year)
+```
 
 
 
